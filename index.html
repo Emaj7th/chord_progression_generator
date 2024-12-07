@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guitar Chord Progression Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    select, button {
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .chord-chart {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .chord {
+      margin: 10px;
+      text-align: center;
+    }
+    svg {
+      width: 100px;
+      height: 150px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Guitar Chord Progression Generator</h1>
+    <label for="key">Select Key:</label>
+    <select id="key"></select>
+
+    <label for="scale">Select Scale:</label>
+    <select id="scale"></select>
+
+    <label for="chord-set">Select Chord Set:</label>
+    <select id="chord-set">
+      <option value="root">Root</option>
+      <option value="7th">7th</option>
+    </select>
+
+    <label for="progression">Select Progression:</label>
+    <select id="progression"></select>
+
+    <button id="generate">Generate Progression</button>
+    <div class="result" id="result"></div>
+    <div class="chord-chart" id="chord-chart"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
