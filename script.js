@@ -14,9 +14,15 @@ let chordProgressionsData = [];
 
 // Predefined list of musical keys
 const musicalKeys = [
-  "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb",
-  "G", "G#/Ab", "A", "A#/Bb", "B"
+  "C", "C#", "Db", "D", "Eb", "E", "F", "F#", "Gb",
+  "G", "Ab", "A", "Bb", "B"
 ];
+
+const keyPreferences = {
+  "C": "sharp", "G": "sharp", "D": "sharp", "A": "sharp", "E": "sharp", "B": "sharp",
+  "F#": "sharp", "C#": "sharp", "F": "flat", "Bb": "flat", "Eb": "flat",
+  "Ab": "flat", "Db": "flat", "Gb": "flat", "Cb": "flat"
+};
 
 // Populate "Select Key" dropdown with all musical keys
 musicalKeys.forEach((key) => {
@@ -101,52 +107,94 @@ parseCSV(chordProgressionsURL, (data) => {
 
 // Helper: Calculate notes in the scale
 function getScaleNotes(key, scaleSteps) {
-  const keyIndex = musicalKeys.findIndex((k) => k === key || k.includes(key));
+  const keyPreference = keyPreferences[key];
+  if (!keyPreference) throw new Error(`Key "${key}" not found in preferences.`);
+
+  // Find the index of the selected key
+  const keyIndex = musicalKeys.indexOf(key);
   if (keyIndex === -1) throw new Error(`Key "${key}" not found in musical keys.`);
 
   // Calculate notes based on scaleSteps
   return scaleSteps.map((step) => {
     const noteIndex = (keyIndex + step) % musicalKeys.length; // Wrap around the array
-    return musicalKeys[noteIndex];
+    const note = musicalKeys[noteIndex];
+
+    // Handle sharp/flat preference
+    if (note.includes('#') && keyPreference === "flat") {
+      return note.replace('#', 'b'); // Convert sharp to flat
+    } else if (note.includes('b') && keyPreference === "sharp") {
+      return note.replace('b', '#'); // Convert flat to sharp
+    }
+
+    return note; // Return note as-is if no conversion is needed
   });
 }
+
+
+
 
 // Generate Progression and Display Results
 document.getElementById('generate').addEventListener('click', () => {
   const selectedKey = keyDropdown.value;
   const selectedScale = scaleDropdown.value;
+  const selectedProgression = progressionDropdown.value.split(',').map((x) => parseInt(x.trim()));
+  const chordSet = document.getElementById('chord-set').value;
 
-  // Get scale steps from scalesChordsData
-  const scaleData = scalesChordsData.find((row) => row.Scale === selectedScale);
-  console.log("Scale Data for Selected Scale:", scaleData);
+  // Filter scale data based on Scale and ChordSetName
+  const scaleData = scalesChordsData.find(
+    (row) => row.Scale === selectedScale && row.ChordSetName.toLowerCase() === chordSet.toLowerCase()
+  );
 
   if (!scaleData) {
-    console.error(`Scale data not found for scale: ${selectedScale}`);
-    resultContainer.innerHTML = `<p><strong>Error:</strong> Scale data not found.</p>`;
+    resultContainer.innerHTML = `<p><strong>Error:</strong> Scale data not found for the selected scale and chord set.</p>`;
     return;
   }
 
-  // Parse ScaleSteps with quotes removed
+  // Parse ScaleSteps
   const scaleSteps = scaleData.ScaleSteps
     ? scaleData.ScaleSteps.replace(/^"|"$/g, '').split(',').map(Number)
     : [];
-  console.log("ScaleSteps Raw:", scaleData.ScaleSteps);
-  console.log("ScaleSteps Processed:", scaleSteps);
-
   if (scaleSteps.length === 0) {
-    console.error(`ScaleSteps is empty or invalid for scale: ${selectedScale}`);
-    resultContainer.innerHTML = `<p><strong>Error:</strong> Invalid ScaleSteps data.</p>`;
+    resultContainer.innerHTML = `<p><strong>Error:</strong> Invalid scale steps.</p>`;
     return;
   }
 
   // Generate Scale Notes
   const scaleNotes = getScaleNotes(selectedKey, scaleSteps);
-  console.log("Scale Notes:", scaleNotes);
+
+  // Validation: Check if progression notes are within the scale
+  const invalidNotes = selectedProgression.filter((step) => step < 1 || step > scaleSteps.length);
+  if (invalidNotes.length > 0) {
+    resultContainer.innerHTML = `
+      <p><strong>Error:</strong> This progression includes notes outside of the selected scale.</p>
+    `;
+    console.log("Invalid Progression Notes:", invalidNotes);
+    return;
+  }
+
+  // Get Chord Types for the Selected Chord Set
+  const chordTypes = [];
+  for (let i = 1; i <= 7; i++) {
+    const chordType = scaleData[i]; // Fetch the chord type for each step
+    chordTypes.push(chordType || ''); // Default to empty string if undefined
+  }
+
+  // Generate Progression
+  const chords = selectedProgression.map((step) => {
+    const note = scaleNotes[step - 1]; // Get the root note for the chord
+    const chordType = chordTypes[step - 1]; // Get the chord type
+    return `${note}${chordType}`;
+  });
 
   // Output Results
   resultContainer.innerHTML = `
     <h3>Results</h3>
     <p><strong>Key:</strong> ${selectedKey}</p>
     <p><strong>Scale:</strong> ${scaleNotes.join(', ')}</p>
+    <p><strong>Set:</strong> ${chordSet}</p>
+    <p><strong>Progression:</strong> ${chords.join(' | ')}</p>
   `;
 });
+
+
+
