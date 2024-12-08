@@ -77,9 +77,9 @@ function parseCSV(url, callback) {
 parseCSV(scalesChordsURL, (data) => {
   scalesChordsData = data;
 
-  // Extract unique scales from the "Scale" column
-  const uniqueScales = [...new Set(scalesChordsData.map((row) => row.Scale))];
-  uniqueScales.forEach((scale) => {
+// Extract unique scales from the "Scale" column
+const uniqueScales = [...new Set(scalesChordsData.map((row) => row.Scale))];
+uniqueScales.forEach((scale) => {
     const option = document.createElement('option');
     option.value = scale;
     option.textContent = scale;
@@ -130,6 +130,41 @@ function getScaleNotes(key, scaleSteps) {
   });
 }
 
+scaleDropdown.addEventListener('change', () => {
+  const selectedScale = scaleDropdown.value;
+  const scaleData = scalesChordsData.find((row) => row.Scale === selectedScale);
+
+  if (!scaleData) {
+    console.error(`Scale data not found for scale: ${selectedScale}`);
+    return;
+  }
+
+  // Parse ScaleSteps
+  const scaleSteps = scaleData.ScaleSteps
+    ? scaleData.ScaleSteps.replace(/^"|"$/g, '').split(',').map(Number)
+    : [];
+  if (scaleSteps.length === 0) {
+    console.error(`Invalid scale steps for scale: ${selectedScale}`);
+    return;
+  }
+
+  // Filter Progressions
+  const validProgressions = chordProgressionsData.filter((row) => {
+    const progressionSteps = row.ChordProgressions.split(',').map((x) => parseInt(x.trim()));
+    return progressionSteps.every((step) => step >= 1 && step <= scaleSteps.length);
+  });
+
+  // Update Progression Dropdown
+  progressionDropdown.innerHTML = ''; // Clear existing options
+  validProgressions.forEach((row) => {
+    const option = document.createElement('option');
+    option.value = row.ChordProgressions.trim();
+    option.textContent = row.ChordProgressions.trim();
+    progressionDropdown.appendChild(option);
+  });
+
+  console.log("Filtered Progressions:", validProgressions.map((row) => row.ChordProgressions));
+});
 
 
 
@@ -192,7 +227,7 @@ document.getElementById('generate').addEventListener('click', () => {
     <p><strong>Key:</strong> ${selectedKey}</p>
     <p><strong>Scale:</strong> ${scaleNotes.join(', ')}</p>
     <p><strong>Set:</strong> ${chordSet}</p>
-    <p><strong>Progression:</strong> ${chords.join(' | ')}</p>
+    <p><strong>Progression:</strong><br /> ${chords.join(' | ')}</p>
   `;
 });
 

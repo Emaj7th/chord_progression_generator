@@ -1,0 +1,56 @@
+﻿chord,chordNotes,chordName
+maj,"0, 4, 7",Major
+min,"0, 3, 7",Minor
+7,"0, 4, 7, 10",Dominant Seventh
+min7,"0, 3, 7, 10",Minor Seventh
+maj7,"0, 4, 7, 11",Major Seventh
+sus4,"0, 5, 7",Suspended Fourth
+7sus4,"0, 5, 7, 10",Seventh Suspended Fourth
+6,"0, 4, 7, 9",Sixth
+min6,"0, 3, 7, 9",Minor Sixth
+dim,"0, 3, 6",Diminished
+dim7,"0, 3, 6, 9",Diminished Seventh
+aug,"0, 4, 8",Augmented
+7-5,"0, 4, 6, 10",Seventh Diminished Fifth
+7+5,"0, 4, 8, 10",Seventh Augmented Fifth
+m7b5,"0, 3, 6, 10",Minor Seventh Flat Five
+mM7,"0, 3, 7, 11",Minor/Major Seventh
+M7#5,"0, 4, 8, 11",Major Seventh Sharp Fifth
+M7b5,"0, 4, 6, 11",Major Seventh Flat Five
+9,"0, 4, 7, 10, 14",Ninth
+min9,"0, 3, 7, 10, 14",Minor Ninth
+maj9,"0, 4, 7, 11, 14",Major Ninth
+7+9,"0, 4, 7, 10, 15",Seventh Augmented Ninth
+7-9,"0, 4, 7, 10, 13",Seventh Diminished Ninth
+7+9-5,"0, 4, 6, 10, 15",Seventh Augmented Ninth Diminished Fifth
+6/9,"0, 4, 7, 9, 14",Sixth/Ninth
+9+5,"0, 4, 8, 10, 14",Ninth Augmented Fifth
+9-5,"0, 4, 6, 10, 14",Ninth Diminished Fifth
+m9-5,"0, 3, 6, 10, 14",Minor Ninth Diminished Fifth
+11,"0, 4, 7, 10, 14, 17",Eleventh
+m11,"0, 3, 7, 10, 14, 17",Minor Eleventh
+11-9,"0, 4, 7, 10, 13, 17",Eleventh Diminished Ninth
+13,"0, 4, 7, 10, 14, 17, 21",Thirteenth
+min13,"0, 3, 7, 10, 14, 17, 21",Minor Thirteenth
+maj13,"0, 4, 7, 11, 14, 17, 21",Major Thirteenth
+add9,"0, 4, 7, 14",Major (Add Ninth)
+min(add9),"0, 3, 7, 14",Minor (Add Ninth)
+sus2,"0, 2, 7",Suspended Second
+5,"0, 7",Power Chord
+(b5),"0, 4, 6",Diminished Fifth
+(#5),"0, 4, 8",Augmented Fifth
+maj11,"0, 4, 7, 11, 14, 17",Major Eleventh
+min6/9,"0, 3, 7, 9, 14",Minor Sixth Added Ninth
+min/maj9,"0, 3, 7, 11, 14",Minor/Major Ninth
+m7#5,"0, 3, 8, 10",Minor Seventh Augmented Fifth
+7add6,"0, 4, 7, 9, 10",Dominant Seventh/Sixth
+7b5b9,"0, 4, 6, 10, 13",Dominant Seventh/Flat Fifth/Flat Ninth
+7#5b9,"0, 4, 8, 10, 13",Dominant Seventh/Sharp Fifth/Flat Ninth
+7b5#9,"0, 4, 6, 10, 15",Dominant Seventh/Flat Fifth/Sharp Ninth
+7#5#9,"0, 4, 8, 10, 15",Dominant Seventh/Sharp Fifth/Sharp Ninth
+7#11,"0, 4, 7, 10, 14, 18",Dominant Seventh/Sharp Eleventh
+7b9#11,"0, 4, 7, 10, 13, 18",Dominant Seventh/Flat Ninth/Sharp Eleventh
+13b9,"0, 4, 7, 10, 13, 18",Dominant Seventh/Flat Ninth/Sharp Eleventh
+13b5b9,"0, 4, 6, 10, 13, 17, 21",Thirteenth/Flat Fifth/Flat Ninth
+13+11,"0, 4, 7, 10, 14, 18, 21",Thirteenth/Sharp Eleventh
+13b9#11,"0, 4, 7, 10, 13, 18, 21",Thirteenth/Flat Ninth/Sharp Eleventh
