@@ -107,7 +107,6 @@ parseCSV(chordProgressionsURL, (data) => {
 scaleDropdown.addEventListener('change', () => {
   const selectedScale = scaleDropdown.value;
   const scaleData = scalesChordsData.find((row) => row.Scale === selectedScale);
-
   if (!scaleData) {
     console.error(`Scale data not found for scale: ${selectedScale}`);
     return;
@@ -139,7 +138,6 @@ scaleDropdown.addEventListener('change', () => {
 
   console.log("Filtered Progressions:", validProgressions.map((row) => row.ChordProgressions));
 });
-
 
 // Helper: Calculate notes in the scale
 function getScaleNotes(key, scaleSteps) {
@@ -228,14 +226,12 @@ function renderChord(container, chordName) {
   chordElement.setAttribute('name', chordName);
   chordElement.setAttribute('positions', positions);
   chordElement.setAttribute('fingers', fingers);
-  chordElement.setAttribute('size', '4'); // Size of the chord diagram
+  chordElement.setAttribute('size', '3'); // Size of the chord diagram
   container.appendChild(chordElement);
 
   // Call chords.replace() to render the chord
   chords.replace();
 }
-
-
 
 // Generate Progression and Display Results
 document.getElementById('generate').addEventListener('click', () => {
@@ -282,11 +278,11 @@ document.getElementById('generate').addEventListener('click', () => {
 
   // Output results
   resultContainer.innerHTML = `
-      <h3>Results</h3>
-      <p><strong>Key:</strong> ${selectedKey}</p>
-      <p><strong>Scale:</strong> ${scaleNotes.join(', ')}</p>
-      <p><strong>Set:</strong> ${chordSet}</p>
-      <p><strong>Progression:</strong><br /> ${chords.map(chord => chord.name).join(' | ')}</p>
+      <div><strong>Key:</strong> ${selectedKey}</div>
+      <div><strong>Scale:</strong> ${selectedScale}</div>
+      <div><strong>Scale Notes:</strong> ${scaleNotes.join(', ')}</div>
+      <div><strong>Set:</strong> ${chordSet}</div>
+      <div><strong>Progression:</strong> ${chords.map(chord => chord.name).join(' | ')}</div>
   `;
 
   // Render chord diagrams
@@ -295,7 +291,7 @@ document.getElementById('generate').addEventListener('click', () => {
 
   chords.forEach((chord) => {
       const container = document.createElement('div');
-      container.style.margin = '20px';
+      container.style.margin = '4px';
       chordChartContainer.appendChild(container);
 
       // Render each chord
