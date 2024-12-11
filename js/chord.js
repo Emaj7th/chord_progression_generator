@@ -157,7 +157,7 @@ var ChordJS = (function(){
             _fretFontSize = _fretWidth / perc;
             _fingerFontSize = _fretWidth * 0.8;
             _guitarStringFontSize = 'bold ' + (_fretWidth * 0.8);
-            _nameFontSize = _fretWidth * 2 / perc;
+            _nameFontSize = (_fretWidth * 2 / perc)-12;
             _superScriptFontSize = 0.7 * _nameFontSize;
             if (_size == 1) {
                 _nameFontSize += 2;

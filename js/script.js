@@ -1,7 +1,7 @@
 // URLs for the CSV files
-const scalesChordsURL = 'scales_chords.csv';
-const chordTypesURL = 'chord_types.csv';
-const chordProgressionsURL = 'chord_progressions.csv';
+const scalesChordsURL = 'data/scales_chords.csv';
+ 
+const chordProgressionsURL = 'data/chord_progressions.csv';
 
 // Select elements in the DOM
 const keyDropdown = document.getElementById('key');
@@ -17,15 +17,16 @@ let chordProgressionsData = [];
 
 // Predefined list of musical keys
 const musicalKeys = [
-  "C", "C#", "Db", "D", "Eb", "E", "F", "F#", "Gb",
-  "G", "Ab", "A", "Bb", "B"
+  "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "B"
 ];
 
 const keyPreferences = {
   "C": "sharp", "G": "sharp", "D": "sharp", "A": "sharp", "E": "sharp", "B": "sharp",
-  "F#": "sharp", "C#": "sharp", "F": "flat", "Bb": "flat", "Eb": "flat",
-  "Ab": "flat", "Db": "flat", "Gb": "flat", "Cb": "flat"
+  "F#": "sharp", "C#": "sharp", "Bb": "flat", "Eb": "flat",
+  "Ab": "flat", "Db": "flat", "Gb": "flat"
 };
+
+//TODO - Cmaj7#5 this chord was not found 
 
 // Populate "Select Key" dropdown with all musical keys
 musicalKeys.forEach((key) => {
@@ -76,7 +77,6 @@ function parseCSV(url, callback) {
 // Load all CSV data
 Promise.all([
   parseCSV(scalesChordsURL, (data) => scalesChordsData = data),
-  parseCSV(chordTypesURL, (data) => chordTypesData = data),
   parseCSV(chordProgressionsURL, (data) => chordProgressionsData = data)
 ]);
 
@@ -139,44 +139,96 @@ scaleDropdown.addEventListener('change', () => {
   console.log("Filtered Progressions:", validProgressions.map((row) => row.ChordProgressions));
 });
 
+document.getElementById('random').addEventListener('click', () => {
+  // Select a random key
+  const randomKeyIndex = Math.floor(Math.random() * musicalKeys.length);
+  keyDropdown.value = musicalKeys[randomKeyIndex];
+
+  // Select a random scale
+  const scales = Array.from(scaleDropdown.options).map(option => option.value);
+  const randomScaleIndex = Math.floor(Math.random() * scales.length);
+  scaleDropdown.value = scales[randomScaleIndex];
+
+  // Trigger scale change to filter progressions
+  scaleDropdown.dispatchEvent(new Event('change'));
+
+  // Wait for progressions to update (short delay to simulate real-time filtering)
+  setTimeout(() => {
+    // Select a random progression
+    const progressions = Array.from(progressionDropdown.options).map(option => option.value);
+    const randomProgressionIndex = Math.floor(Math.random() * progressions.length);
+    progressionDropdown.value = progressions[randomProgressionIndex];
+
+    // Select a random chord set
+    const chordSets = Array.from(document.getElementById('chord-set').options).map(option => option.value);
+    const randomChordSetIndex = Math.floor(Math.random() * chordSets.length);
+    document.getElementById('chord-set').value = chordSets[randomChordSetIndex];
+
+    // Trigger the "Generate" button
+    document.getElementById('generate').click();
+  }, 200); // Adjust delay if needed
+});
+
+
 // Helper: Calculate notes in the scale
 function getScaleNotes(key, scaleSteps) {
   const musicalKeysSimplified = [
     "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
   ]; // Simplified version for physical counting
 
+  const sharpToFlat = {
+    "C#": "Db", "D#": "Eb", "F#": "Gb", "G#": "Ab", "A#": "Bb"
+  };
+
+  const flatToSharp = {
+    "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"
+  };
+
   const keyPreference = keyPreferences[key]; // Determine preference (sharp/flat)
-  const rootNoteIndex = musicalKeysSimplified.indexOf(key);
+  const rootNoteIndex = musicalKeysSimplified.indexOf(key.includes('b') ? flatToSharp[key] || key : key);
 
   if (rootNoteIndex === -1) {
     console.error(`Key "${key}" not found in musicalKeysSimplified.`);
     return [];
   }
 
-  // Calculate notes of the scale using physical step progression
-  const scaleNotes = scaleSteps.map((step) => {
-    const noteIndex = (rootNoteIndex + step) % musicalKeysSimplified.length; // Wrap around
-    return musicalKeysSimplified[noteIndex];
+  let lastPureNote = ""; // To track the last "pure" note
+  const scaleNotes = [];
+
+  scaleSteps.forEach((step) => {
+    const noteIndex = (rootNoteIndex + step) % musicalKeysSimplified.length;
+    let note = musicalKeysSimplified[noteIndex];
+
+    // Adjust notes based on preference
+    if (keyPreference === "flat" && sharpToFlat[note]) {
+      note = sharpToFlat[note]; // Convert sharp to flat
+    } else if (keyPreference === "sharp" && flatToSharp[note]) {
+      note = flatToSharp[note]; // Convert flat to sharp
+    }
+
+    const pureNote = note.replace(/[#b]/g, ""); // Remove sharp/flat to get the "pure" note
+
+    // Check for duplicate "pure" notes
+    if (pureNote === lastPureNote) {
+      if (note.includes("#")) {
+        note = sharpToFlat[note]; // Convert to flat
+      } else if (note.includes("b")) {
+        note = flatToSharp[note]; // Convert to sharp
+      } else {
+        // Increment the pure note and add a flat
+        const nextNoteIndex = (musicalKeysSimplified.indexOf(pureNote) + 1) % musicalKeysSimplified.length;
+        note = sharpToFlat[musicalKeysSimplified[nextNoteIndex]] || musicalKeysSimplified[nextNoteIndex] + "b";
+      }
+    }
+
+    scaleNotes.push(note);
+    lastPureNote = pureNote; // Update the last "pure" note
   });
 
-  // Adjust notes based on preference (sharp or flat)
-  return scaleNotes.map((note) => {
-    if (keyPreference === "flat" && note.includes('#')) {
-      // Convert sharp to flat using a mapping
-      const sharpToFlat = {
-        "C#": "Db", "D#": "Eb", "F#": "Gb", "G#": "Ab", "A#": "Bb"
-      };
-      return sharpToFlat[note] || note;
-    } else if (keyPreference === "sharp" && note.includes('b')) {
-      // Convert flat to sharp using a mapping
-      const flatToSharp = {
-        "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"
-      };
-      return flatToSharp[note] || note;
-    }
-    return note; // Return note as-is if no conversion is needed
-  });
+  return scaleNotes;
 }
+
+
 
 function getChordHtml(chordName,layout,size) {
   var size = size || 5
@@ -203,35 +255,38 @@ function getChordHtml(chordName,layout,size) {
 
 // Render chord diagrams using chords.js and CHORD_COLLECTION
 function renderChord(container, chordName) {
-  console.log(`Rendering chord: ${chordName}`);
+  const flatToSharp = {
+    "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"
+  };
 
-  // Check if the chord exists in CHORD_COLLECTION
-  if (!CHORD_COLLECTION[chordName]) {
-      console.error(`Chord "${chordName}" not found in CHORD_COLLECTION.`);
-      const errorDiv = document.createElement('div');
-      errorDiv.textContent = `Chord "${chordName}" not available.`;
-      container.appendChild(errorDiv);
-      return;
+  // Convert flat notes to sharp equivalents
+  const sharpChordName = chordName
+    .replace(/[A-G]b/g, (match) => flatToSharp[match] || match);
+
+  console.log(`Rendering chord: ${sharpChordName}`);
+
+  if (!CHORD_COLLECTION[sharpChordName]) {
+    console.error(`Chord "${sharpChordName}" not found in CHORD_COLLECTION.`);
+    const errorDiv = document.createElement('div');
+    errorDiv.textContent = `Chord "${chordName}" not available.`;
+    container.appendChild(errorDiv);
+    return;
   }
 
-  // Get the first variation of the chord
-  const chordData = CHORD_COLLECTION[chordName][0];
+  const chordData = CHORD_COLLECTION[sharpChordName][0];
   const positions = chordData.positions.join('');
   const fingers = chordData.fingerings[0].join('').replace(/0/g, '-');
 
-  console.log(`Chord data for ${chordName}:`, { positions, fingers });
-
-  // Create a <chord> element
   const chordElement = document.createElement('chord');
   chordElement.setAttribute('name', chordName);
   chordElement.setAttribute('positions', positions);
   chordElement.setAttribute('fingers', fingers);
-  chordElement.setAttribute('size', '3'); // Size of the chord diagram
+  chordElement.setAttribute('size', '3');
   container.appendChild(chordElement);
 
-  // Call chords.replace() to render the chord
   chords.replace();
 }
+
 
 // Generate Progression and Display Results
 document.getElementById('generate').addEventListener('click', () => {
