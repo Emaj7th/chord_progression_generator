@@ -180,128 +180,59 @@ function getScaleNotes(key, scaleSteps) {
   });
 }
 
-
-
-// Helper: Calculate the note at a specific fret on a given string
-function calculateNoteAtFret(stringNote, fret) {
-  const allNotes = [
-    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-  ];
-  const startIndex = allNotes.indexOf(stringNote);
-  if (startIndex === -1) {
-    console.error(`Invalid string note: ${stringNote}`);
-    return null;
+function getChordHtml(chordName,layout,size) {
+  var size = size || 5
+  var chordsHtmlArr = []   //example: <chord name="D" positions="xx0232" fingers="---132" size="3" ></chord>
+  var chordVariations = []
+  if (CHORD_COLLECTION[chordName]) {
+      chordVariations = CHORD_COLLECTION[chordName]
+  } else {
+      chordVariations.push({positions:['x','x','x','x','x','x'],fingerings:[[0,0,0,0,0,0]]})
+      chordName = chordName + ' (N/A)'
   }
-  return allNotes[(startIndex + fret) % allNotes.length];
+  chordVariations.forEach(function(variation,i){
+      var positionsStr = variation.positions.join('')
+      variation.fingerings.forEach(function(fingering,i){
+          var fingeringStr = fingering.join('').replace(/0/g,'-')
+          if (positionsStr.length===6 && fingeringStr.length===6 && positionsStr !== 'xxxxxx') {
+              var chordHtml = '<chord name="' + chordName  + '" positions="' + positionsStr + '" fingers="' + fingeringStr + '" size="' + size + '" layout="' + layout + '" strings="EADGBe"></chord>'
+              chordsHtmlArr.push(chordHtml)
+          }
+      })
+  })
+  return chordsHtmlArr
 }
 
+// Render chord diagrams using chords.js and CHORD_COLLECTION
+function renderChord(container, chordName) {
+  console.log(`Rendering chord: ${chordName}`);
 
-
-// Helper: Calculate chord positions dynamically
-// All logic remains the same, focusing specifically on `calculateChordPositions` and related areas.
-function calculateChordPositions(scaleNotes, rootNote, chordType) {
-  const tuning = ["E", "A", "D", "G", "B", "E"]; // Standard guitar tuning
-  const allNotes = [
-    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-  ];
-
-  console.log(`Scale Notes: ${scaleNotes}, Root Note: ${rootNote}, Chord Type: ${chordType}`);
-
-  const chordTypeData = chordTypesData.find(
-    (row) => row.chord.trim().toLowerCase() === chordType.trim().toLowerCase()
-  );
-
-  if (!chordTypeData) {
-    console.error(`Chord type "${chordType}" not found in chordTypesData.`);
-    return [];
+  // Check if the chord exists in CHORD_COLLECTION
+  if (!CHORD_COLLECTION[chordName]) {
+      console.error(`Chord "${chordName}" not found in CHORD_COLLECTION.`);
+      const errorDiv = document.createElement('div');
+      errorDiv.textContent = `Chord "${chordName}" not available.`;
+      container.appendChild(errorDiv);
+      return;
   }
 
-  // Get the steps (intervals) for the chord type
-  const steps = chordTypeData.chordNotes.split(',').map((step) => parseInt(step.trim()));
-  console.log(`Steps for ${chordType}:`, steps);
+  // Get the first variation of the chord
+  const chordData = CHORD_COLLECTION[chordName][0];
+  const positions = chordData.positions.join('');
+  const fingers = chordData.fingerings[0].join('').replace(/0/g, '-');
 
-  // Find the root note's index in `allNotes`
-  const rootNoteIndex = allNotes.indexOf(rootNote);
-  if (rootNoteIndex === -1) {
-    console.error(`Root note "${rootNote}" not found in all notes.`);
-    return [];
-  }
+  console.log(`Chord data for ${chordName}:`, { positions, fingers });
 
-  // Calculate the actual chord notes using physical counting from `allNotes`
-// Calculate the actual chord notes using physical counting
-const chordNotes = steps.map((step) => {
-  const noteIndex = (rootNoteIndex + step) % allNotes.length; // Wrap around
-  const note = allNotes[noteIndex];
+  // Create a <chord> element
+  const chordElement = document.createElement('chord');
+  chordElement.setAttribute('name', chordName);
+  chordElement.setAttribute('positions', positions);
+  chordElement.setAttribute('fingers', fingers);
+  chordElement.setAttribute('size', '4'); // Size of the chord diagram
+  container.appendChild(chordElement);
 
-  // Respect key preference
-  if (note.includes('#') && keyPreferences[rootNote] === "flat") {
-    return note.replace('#', 'b');
-  } else if (note.includes('b') && keyPreferences[rootNote] === "sharp") {
-    return note.replace('b', '#');
-  }
-  return note;
-});
-
-  console.log(`Chord notes for ${rootNote}${chordType}:`, chordNotes);
-
-  // Generate positions for the chord notes on the guitar fretboard
-  const positions = [];
-  for (let stringIndex = 0; stringIndex < tuning.length; stringIndex++) {
-    const stringNote = tuning[stringIndex];
-    for (let fret = 0; fret <= 12; fret++) {
-      const noteAtFret = calculateNoteAtFret(stringNote, fret);
-      if (chordNotes.includes(noteAtFret)) {
-        positions.push([fret, stringIndex + 1]); // [fret, string number]
-        break; // Stop once we find the first matching note for this string
-      }
-    }
-  }
-
-  console.log(`Positions for ${rootNote}${chordType}:`, positions);
-  return positions;
-}
-
-
-
-function renderChord(container, chordName, chordPositions) {
-  console.log("Rendering chord:", chordName);
-  console.log("Chord positions:", chordPositions);
-
-  // Validate chordPositions
-  if (!Array.isArray(chordPositions) || chordPositions.length === 0) {
-    console.error(`Invalid chord positions for ${chordName}`);
-    container.textContent = `Unable to render ${chordName}`;
-    return;
-  }
-
-  // Filter and format the positions to match Svguitar requirements
-  const validPositions = chordPositions.map(([fret, string]) => {
-    return fret === 'x' ? [string, 'x'] : [string, fret];
-  });
-
-  const validFrets = validPositions
-    .filter(([string, fret]) => typeof fret === 'number' && fret > 0)
-    .map(([string, fret]) => fret);
-
-  const startingFret = validFrets.length > 0 ? Math.min(...validFrets) : 1;
-
-  try {
-    const chart = new svguitar.SVGuitarChord(container)
-      .configure({
-        title: chordName,
-        strings: 6,
-        frets: 4,
-        position: startingFret,
-        orientation: 'vertical',
-        style: 'normal',
-      })
-      .chord({
-        fingers: validPositions,
-      })
-      .draw();
-  } catch (err) {
-    console.error(`Error rendering ${chordName}:`, err);
-  }
+  // Call chords.replace() to render the chord
+  chords.replace();
 }
 
 
@@ -314,79 +245,60 @@ document.getElementById('generate').addEventListener('click', () => {
   const chordSet = document.getElementById('chord-set').value;
 
   const scaleData = scalesChordsData.find(
-    (row) => row.Scale === selectedScale && row.ChordSetName.toLowerCase() === chordSet.toLowerCase()
+      (row) => row.Scale === selectedScale && row.ChordSetName.toLowerCase() === chordSet.toLowerCase()
   );
 
   if (!scaleData) {
-    resultContainer.innerHTML = `<p><strong>Error:</strong> Scale data not found for the selected scale and chord set.</p>`;
-    return;
+      resultContainer.innerHTML = `<p><strong>Error:</strong> Scale data not found for the selected scale and chord set.</p>`;
+      return;
   }
 
   const scaleSteps = scaleData.ScaleSteps
-    ? scaleData.ScaleSteps.replace(/^"|"$/g, '').split(',').map(Number)
-    : [];
+      ? scaleData.ScaleSteps.replace(/^"|"$/g, '').split(',').map(Number)
+      : [];
   const scaleNotes = getScaleNotes(selectedKey, scaleSteps);
 
-  if (!scaleNotes || scaleNotes.length === 0) {
-    resultContainer.innerHTML = `<p><strong>Error:</strong> Unable to generate scale notes.</p>`;
-    console.error("Error: Scale notes not generated.");
-    return;
+  const invalidNotes = selectedProgression.filter((step) => step < 1 || step > scaleSteps.length);
+  if (invalidNotes.length > 0) {
+      resultContainer.innerHTML = `<p><strong>Error:</strong> This progression includes notes outside of the selected scale.</p>`;
+      return;
   }
 
   const chordTypes = [];
   for (let i = 1; i <= 7; i++) {
-    const chordType = scaleData[i];
-    chordTypes.push(chordType || '');
+      const chordType = scaleData[i];
+      chordTypes.push(chordType || '');
   }
 
   const chords = selectedProgression.map((step) => {
-    const note = scaleNotes[step - 1];
-    const chordType = chordTypes[step - 1];
-    return { name: `${note}${chordType}`, note, chordType };
+      const note = scaleNotes[step - 1];
+      const chordType = chordTypes[step - 1];
+      if (chordType === 'maj') {
+          return { name: `${note}`, note, chordType };
+      } else {
+          return { name: `${note}${chordType}`, note, chordType };
+      }
   });
 
+  // Output results
   resultContainer.innerHTML = `
-    <h3>Results</h3>
-    <p><strong>Key:</strong> ${selectedKey}</p>
-    <p><strong>Scale:</strong> ${scaleNotes.join(', ')}</p>
-    <p><strong>Set:</strong> ${chordSet}</p>
-    <p><strong>Progression:</strong><br /> ${chords.map(chord => chord.name).join(' | ')}</p>
+      <h3>Results</h3>
+      <p><strong>Key:</strong> ${selectedKey}</p>
+      <p><strong>Scale:</strong> ${scaleNotes.join(', ')}</p>
+      <p><strong>Set:</strong> ${chordSet}</p>
+      <p><strong>Progression:</strong><br /> ${chords.map(chord => chord.name).join(' | ')}</p>
   `;
-  /*
-  chordChartContainer.innerHTML = '';
+
+  // Render chord diagrams
+  const chordChartContainer = document.getElementById('chord-chart');
+  chordChartContainer.innerHTML = ''; // Clear previous diagrams
 
   chords.forEach((chord) => {
-    const container = document.createElement('div');
-    container.style.margin = '20px';
-    chordChartContainer.appendChild(container);
+      const container = document.createElement('div');
+      container.style.margin = '20px';
+      chordChartContainer.appendChild(container);
 
-    console.log(`Chord Note: ${chord.note}, Chord Type: ${chord.chordType}, Scale Notes:`, scaleNotes);
-
-    const chordPositions = calculateChordPositions(scaleNotes, chord.note, chord.chordType);
-    renderChord(container, chord.name, chordPositions);
+      // Render each chord
+      renderChord(container, chord.name);
   });
-  */
 });
-
-/*
-
-parseCSV('chord_types.csv', (data) => {
-  chordTypesData = data;
-  console.log('Parsed Chord Types Data:', chordTypesData);
-});
-
-
-
-const testContainer = document.createElement('div');
-document.body.appendChild(testContainer);
-
-const testChordPositions = [
-  [3, 5], // Fret 3, String 5
-  [2, 4], // Fret 2, String 4
-  [1, 2], // Fret 1, String 2
-  [0, 3], // Open String 3
-  ['x', 6], // Muted String 6
-];
-
-renderChord(testContainer, "Cmaj", testChordPositions);
-*/
