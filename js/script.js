@@ -17,7 +17,7 @@ let chordProgressionsData = [];
 
 // Predefined list of musical keys
 const musicalKeys = [
-  "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "B"
+  "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "Bb", "B"
 ];
 
 const keyPreferences = {
@@ -26,7 +26,7 @@ const keyPreferences = {
   "Ab": "flat", "Db": "flat", "Gb": "flat"
 };
 
-//TODO - Cmaj7#5 this chord was not found 
+//TODO - fix sharp keys - notes are not correct
 
 // Populate "Select Key" dropdown with all musical keys
 musicalKeys.forEach((key) => {
@@ -166,6 +166,7 @@ document.getElementById('random').addEventListener('click', () => {
 
     // Trigger the "Generate" button
     document.getElementById('generate').click();
+    launch(selectedKey,selectedScale);
   }, 200); // Adjust delay if needed
 });
 
@@ -227,8 +228,6 @@ function getScaleNotes(key, scaleSteps) {
 
   return scaleNotes;
 }
-
-
 
 function getChordHtml(chordName,layout,size) {
   var size = size || 5
@@ -295,6 +294,7 @@ document.getElementById('generate').addEventListener('click', () => {
   const selectedProgression = progressionDropdown.value.split(',').map((x) => parseInt(x.trim()));
   const chordSet = document.getElementById('chord-set').value;
 
+
   const scaleData = scalesChordsData.find(
       (row) => row.Scale === selectedScale && row.ChordSetName.toLowerCase() === chordSet.toLowerCase()
   );
@@ -352,4 +352,6 @@ document.getElementById('generate').addEventListener('click', () => {
       // Render each chord
       renderChord(container, chord.name);
   });
+  // update guitar neck with new scale
+  launch(selectedKey,selectedScale);
 });

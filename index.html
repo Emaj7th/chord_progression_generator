@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scale and Chord Progressions</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="js/chord.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/T-vK/chord-collection@master/chords.js"></script>
+  <script src="js/chord-collection.js"></script>
+  <script type="text/javascript" src="js/scale.js"></script>
+  <link rel="stylesheet" href="style.css">
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
     body {
-      background-color: #4a5f74;
+      background-color: #222222;
       color: white;
       font-family: Arial, sans-serif;
     }
@@ -20,9 +23,9 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      padding: 10px;
-      width: 600px;
-      margin: 10px auto 0 auto;
+      padding: 0 10px 10px 10px;
+      width: 1200px;
+      margin: 10px auto 10px auto;
       border-radius: 0.5rem;
       box-shadow: 0px 4px 6px #222222;
     }
@@ -30,7 +33,7 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      width: 600px;
+      width: 1200px;
       text-align: center;
     }
     .form-container {
@@ -56,7 +59,9 @@
       color: #f0ad4e;
     }     
     .results-container {
-      width: 580px;
+      width: 600px;
+      display: inline-block;
+      margin: 10px;
       background-color: #f8f9fa; /* Light gray for results */
       color: black;
       border-radius: 0.5rem;
@@ -91,6 +96,7 @@
   </style>
 </head>
 <body>
+<div class="rectangle">
   <div class="main-container">
     <!-- Top Section -->
     <div class="top-section">
@@ -112,23 +118,87 @@
         <label for="progression" class="form-label">Progression:</label>
         <select id="progression" class="form-select mb-3"></select>
 
-        <button id="generate" type="button" class="btn btn-custom w-100">GENERATE</button>
-        <button id="random" type="button" class="btn btn-custom w-100 mt-2">RANDOM</button>
+        
       </div>
       <div class="title-container"><h2 class="text-center fw-bold">Scale and Chord Progressions</h2>
         <br />
         <p>Select Scale before Progression to properly filter Progressions options.</p>
+        <br />
+        <button id="generate" type="button" class="btn btn-custom w-100">GENERATE</button>
+        <button id="random" type="button" class="btn btn-custom w-100 mt-2">RANDOM</button>
       </div>
-    </div>
-
-    <!-- Results Section -->
+          <!-- Results Section -->
     <div class="results-container">
       <div id="result">
         
       </div>
       <div id="chord-chart" class="chord-chart"></div>
     </div>
+    </div>
+
+
   </div>
+ 
+ 
+
+    <div class="shift">
+    <div class="guitar">
+      <div class="open_strings">
+      <ul>
+        <li>e</li>
+        <li>B</li>
+        <li>G</li>
+        <li>D</li>
+        <li>A</li>
+        <li>E</li>
+      </ul></div>
+
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+      <div class="fret"></div>
+
+      <div class="dots">
+        <div class="dots dot1"></div>
+        <div class="dots dot2"></div>
+        <div class="dots dot3"></div>
+        <div class="dots dot4"></div>
+        <div class="dots dot5"></div>
+      </div>
+
+
+        <div class="string1"></div>
+        <div class="string2"></div>
+        <div class="string3"></div>
+        <div class="string4"></div>
+        <div class="string5"></div>
+        <div class="string6"></div>
+
+
+      <div class="notes" id="div1">
+        <div class="notes1"><ul></ul></div>
+        <div class="notes2"><ul></ul></div>
+        <div class="notes3"><ul></ul></div>
+        <div class="notes4"><ul></ul></div>
+        <div class="notes5"><ul></ul></div>
+        <div class="notes6"><ul></ul></div>
+      </div>
+
+    </div>
+    </div>
+ 
+    </div>
 
   <script src="js/script.js"></script>
 </body>
