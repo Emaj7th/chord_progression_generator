@@ -85,12 +85,12 @@ function launch(root,type) {
   clearArrays();
   $("#div1").fadeIn(350);
 
-    var string6 = ['E','F','F#','G','G#','A','A#','B','C','C#','D','D#','E','F','F#'];
+  var string6 = ['E','F','F#','G','G#','A','A#','B','C','C#','D','D#','E','F','F#'];
 	var	string5 = ['A','A#','B','C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 	var	string4 = ['D','D#','E','F','F#','G','G#','A','A#','B','C','C#','D','D#','E'];
 	var	string3 = ['G','G#','A','A#','B','C','C#','D','D#','E','F','F#','G','G#','A'];
 	var	string2 = ['B','C','C#','D','D#','E','F','F#','G','G#','A','A#','B','C','C#'];
-    var string1 = ['E','F','F#','G','G#','A','A#','B','C','C#','D','D#','E','F','F#'];
+  var string1 = ['E','F','F#','G','G#','A','A#','B','C','C#','D','D#','E','F','F#'];
 
   var root_int = getInt(root);
 

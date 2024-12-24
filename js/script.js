@@ -26,7 +26,7 @@ const keyPreferences = {
   "Ab": "flat", "Db": "flat", "Gb": "flat"
 };
 
-//TODO - fix sharp keys - notes are not correct
+//TODO - Bb Dorian, Bb Lydian Augmented scale missing
 
 // Populate "Select Key" dropdown with all musical keys
 musicalKeys.forEach((key) => {
@@ -142,6 +142,7 @@ scaleDropdown.addEventListener('change', () => {
 document.getElementById('random').addEventListener('click', () => {
   // Select a random key
   const randomKeyIndex = Math.floor(Math.random() * musicalKeys.length);
+
   keyDropdown.value = musicalKeys[randomKeyIndex];
 
   // Select a random scale
@@ -163,7 +164,8 @@ document.getElementById('random').addEventListener('click', () => {
     const chordSets = Array.from(document.getElementById('chord-set').options).map(option => option.value);
     const randomChordSetIndex = Math.floor(Math.random() * chordSets.length);
     document.getElementById('chord-set').value = chordSets[randomChordSetIndex];
-
+    selectedKey = keyDropdown.value;
+    selectedScale = scaleDropdown.value
     // Trigger the "Generate" button
     document.getElementById('generate').click();
     launch(selectedKey,selectedScale);
@@ -173,27 +175,30 @@ document.getElementById('random').addEventListener('click', () => {
 
 // Helper: Calculate notes in the scale
 function getScaleNotes(key, scaleSteps) {
-  const musicalKeysSimplified = [
-    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-  ]; // Simplified version for physical counting
+  // First convert the input key to its sharp equivalent for indexing
+  const flatToSharp = {
+    "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"
+  };
 
   const sharpToFlat = {
     "C#": "Db", "D#": "Eb", "F#": "Gb", "G#": "Ab", "A#": "Bb"
   };
 
-  const flatToSharp = {
-    "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"
-  };
+  const musicalKeysSimplified = [
+    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+  ];
 
-  const keyPreference = keyPreferences[key]; // Determine preference (sharp/flat)
-  const rootNoteIndex = musicalKeysSimplified.indexOf(key.includes('b') ? flatToSharp[key] || key : key);
+  // Convert input key to sharp version for indexing if it's flat
+  const indexKey = key.includes('b') ? flatToSharp[key] || key : key;
+  const keyPreference = keyPreferences[key];
+  const rootNoteIndex = musicalKeysSimplified.indexOf(indexKey);
 
   if (rootNoteIndex === -1) {
     console.error(`Key "${key}" not found in musicalKeysSimplified.`);
     return [];
   }
 
-  let lastPureNote = ""; // To track the last "pure" note
+  let lastPureNote = "";
   const scaleNotes = [];
 
   scaleSteps.forEach((step) => {
@@ -202,28 +207,27 @@ function getScaleNotes(key, scaleSteps) {
 
     // Adjust notes based on preference
     if (keyPreference === "flat" && sharpToFlat[note]) {
-      note = sharpToFlat[note]; // Convert sharp to flat
+      note = sharpToFlat[note];
     } else if (keyPreference === "sharp" && flatToSharp[note]) {
-      note = flatToSharp[note]; // Convert flat to sharp
+      note = flatToSharp[note];
     }
 
-    const pureNote = note.replace(/[#b]/g, ""); // Remove sharp/flat to get the "pure" note
+    const pureNote = note.replace(/[#b]/g, "");
 
     // Check for duplicate "pure" notes
     if (pureNote === lastPureNote) {
       if (note.includes("#")) {
-        note = sharpToFlat[note]; // Convert to flat
+        note = sharpToFlat[note];
       } else if (note.includes("b")) {
-        note = flatToSharp[note]; // Convert to sharp
+        note = flatToSharp[note];
       } else {
-        // Increment the pure note and add a flat
         const nextNoteIndex = (musicalKeysSimplified.indexOf(pureNote) + 1) % musicalKeysSimplified.length;
         note = sharpToFlat[musicalKeysSimplified[nextNoteIndex]] || musicalKeysSimplified[nextNoteIndex] + "b";
       }
     }
 
     scaleNotes.push(note);
-    lastPureNote = pureNote; // Update the last "pure" note
+    lastPureNote = pureNote;
   });
 
   return scaleNotes;
@@ -309,6 +313,10 @@ document.getElementById('generate').addEventListener('click', () => {
       : [];
   const scaleNotes = getScaleNotes(selectedKey, scaleSteps);
 
+  const scaleFormula = scaleData.Formula
+      ? scaleData.Formula.replace(/^"|"$/g, '').split(',').map(Number)
+      : [];
+
   const invalidNotes = selectedProgression.filter((step) => step < 1 || step > scaleSteps.length);
   if (invalidNotes.length > 0) {
       resultContainer.innerHTML = `<p><strong>Error:</strong> This progression includes notes outside of the selected scale.</p>`;
@@ -331,11 +339,22 @@ document.getElementById('generate').addEventListener('click', () => {
       }
   });
 
-  // Output results
+  function convertFormulaToSteps(formula) {
+    return formula.map(num => {
+      switch(num) {
+        case 1: return 'H';
+        case 2: return 'W';
+        case 3: return 'W+H';
+        default: return num;
+      }
+    }).join(', ');
+  }
+  
+  // Then in the results output:
   resultContainer.innerHTML = `
       <div><strong>Key:</strong> ${selectedKey}</div>
       <div><strong>Scale:</strong> ${selectedScale}</div>
-      <div><strong>Scale Notes:</strong> ${scaleNotes.join(', ')}</div>
+      <div><strong>Scale Formula:</strong> ${convertFormulaToSteps(scaleFormula)}</div>
       <div><strong>Set:</strong> ${chordSet}</div>
       <div><strong>Progression:</strong> ${chords.map(chord => chord.name).join(' | ')}</div>
   `;
