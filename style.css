@@ -1,3 +1,112 @@
+body {
+    background-color: #222222;
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+  .main-container {
+    background-color: #2b465f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px 10px 10px;
+    width: 1268px;
+    margin: 0 auto 20px auto;
+    border: 2px solid #000;
+    border-radius: 0.5rem;
+    box-shadow: 0px 4px 6px #222;
+  }
+  .top-section {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 1200px;
+    text-align: center;
+  }
+  .form-container {
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
+    width: 300px;
+
+    color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    
+  }
+  .title-container {
+    display: inline-block;
+    vertical-align: top;
+    width: 300px;
+    color: #ffffff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  h1{
+    font-weight: bolder;
+  }
+  h2{
+    font-weight: bolder;
+  }     
+  .results-container {
+    width: 780px;
+    display: inline-block;
+    margin: 10px;
+    background-color: #c5c5c5; /* Light gray for results */
+    color: black;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 2px solid #000;
+    text-align: left;
+    box-shadow: 0px 4px 6px #000;
+  }
+  .btn-custom {
+    background-color: #fa990f;
+    border-color: #ec971f;
+    color: #2b465f;
+    font-weight: bold; 
+    margin-bottom: 8px;
+  }
+  .btn-custom:hover {
+    background-color: #ffdeac;
+    color: #2b465f;
+  }
+  .chord-chart {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 20px;
+  }
+  .chord-chart canvas {
+    background: #4a5f74;
+    border-radius: 5px;
+    padding: 2px;
+    box-shadow: 0px 2px 3px #999;
+  }
+
+  .menu{width: 1268px; margin:0 auto
+     
+  }
+  .menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  .menu ul li {
+      position: relative;
+      display: inline;
+      float: left;
+       vertical-align: bottom; 
+      margin-right: 6px;
+      width: 180px; height: 70px;
+
+      list-style: none;
+      font-family: "Trebuchet MS", Helvetica, sans-serif;
+       ;
+  } 
+  
 .rectangle {
     width: 1330px; 
     margin: 10px auto;  
@@ -295,7 +404,7 @@
 .keyboard {
     display: inline-block; 
     padding: 0; 
-    margin: 0 0 0 17px;
+    margin: 0 0 0 9px;
     height: 62px; 
     vertical-align: top;  
     border: 2px solid #5f5744;
@@ -312,10 +421,10 @@
     gap: 2px; height: 20px;
 }
 :root {
-  --natural-key-width: 10px;
+  --natural-key-width: 12px;
   --natural-key-height: 40px;
-  --sharp-key-width: 8px;
-  --sharp-key-height: 20px;
+  --sharp-key-width: 10px;
+  --sharp-key-height: 22px;
 }
 
 #piano-keyboard0 {
@@ -367,12 +476,12 @@
 .key-natural.active::after,
 .key-sharp.active::after {
   content: "";
-  width: 15px;
-  height: 15px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background-color: red;
+  background-color: #fa990f;
   position: absolute;
-  bottom: 10px;
+  bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
 }

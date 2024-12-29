@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf8" />
+    <title>Piano chord visualizer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="test-piano.css" />
+    
+  </head>
+  <body class="d-flex flex-column h-100 min-vh-100">
+    <body class="d-flex flex-column h-100 min-vh-100">
+      <main class="bg-secondary text-white flex-grow-1">
+        <div class="container">
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <h1>Piano chord visualizer</h1>
+            </div>
+          </div>
+          <div class="row mt-5">
+            <div class="col-md-6">
+              <div class="container-fluid">
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="root-notes-group" class="form-label"
+                      ><i class="bi bi-music-note"></i> Root note</label
+                    >
+                    <div
+                      class="btn-toolbar mb-3"
+                      role="toolbar"
+                      aria-label="Toolbar with button groups"
+                    >
+                      <div
+                        id="root-notes-group"
+                        class="btn-group me-2"
+                        role="group"
+                        aria-label="Root notes group"
+                      >
+                        <button type="button" class="btn btn-outline-light" data-note="c">
+                          C
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="c#">
+                          C#
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="d">
+                          D
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="d#">
+                          D#
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="e">
+                          E
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="f">
+                          F
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="f#">
+                          F#
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="g">
+                          G
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="g#">
+                          G#
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="a">
+                          A
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="a#">
+                          A#
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-note="b">
+                          B
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+    
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="chord-types-group" class="form-label"
+                      ><i class="bi bi-music-note-beamed"></i> Chord type</label
+                    >
+                    <div
+                      class="btn-toolbar mb-3"
+                      role="toolbar2"
+                      aria-label="Toolbar with button groups"
+                    >
+                      <div
+                        id="chord-types-group"
+                        class="btn-group me-2"
+                        role="group2"
+                        aria-label="Chord types group"
+                      >
+                        <button type="button" class="btn btn-outline-light" data-type="maj">
+                          Major
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-type="min">
+                          Minor
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-type="dim">
+                          Diminished
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+    
+            <div class="col-md-6 d-flex justify-content-center flex-wrap">
+              <div id="piano-keyboard">
+                <div class="key key-natural" data-note="c"></div>
+                <div class="key key-sharp" data-note="c#"></div>
+                <div class="key key-natural" data-note="d"></div>
+                <div class="key key-sharp" data-note="d#"></div>
+                <div class="key key-natural" data-note="e"></div>
+                <div class="key key-natural" data-note="f"></div>
+                <div class="key key-sharp" data-note="f#"></div>
+                <div class="key key-natural" data-note="g"></div>
+                <div class="key key-sharp" data-note="g#"></div>
+                <div class="key key-natural" data-note="a"></div>
+                <div class="key key-sharp" data-note="a#"></div>
+                <div class="key key-natural" data-note="b"></div>
+                <div class="key key-natural" data-note="c"></div>
+                <div class="key key-sharp" data-note="c#"></div>
+                <div class="key key-natural" data-note="d"></div>
+                <div class="key key-sharp" data-note="d#"></div>
+                <div class="key key-natural" data-note="e"></div>
+                <div class="key key-natural" data-note="f"></div>
+                <div class="key key-sharp" data-note="f#"></div>
+                <div class="key key-natural" data-note="g"></div>
+                <div class="key key-sharp" data-note="g#"></div>
+                <div class="key key-natural" data-note="a"></div>
+                <div class="key key-sharp" data-note="a#"></div>
+                <div class="key key-natural" data-note="b"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </body>
+    <script src="test-piano.js"></script>
+    <script>renderChanges({ rootNote: 'A', chordType: 'min' });</script>
+</html>

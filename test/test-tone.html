@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+	<head>	
+		<meta charset="utf-8" />
+		<title>Simple HTML</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- LOAD Tone.js from unpkg -->
+		<script src="https://cdn.jsdelivr.net/npm/tone@15.0.4/build/Tone.min.js"></script>
+        <script>
+            
+            const sampler = new Tone.Sampler({
+                urls: {
+                    C4: "C4.mp3",
+                    "D#4": "Ds4.mp3",
+                    "F#4": "Fs4.mp3",
+                    A4: "A4.mp3",
+                },
+                release: 1,
+                baseUrl: "https://tonejs.github.io/audio/salamander/",
+            }).toDestination();
+
+            function playChord(){
+                sampler.triggerAttackRelease(["G3", "B3", "D4", "F4"],"1m", "0", 4);
+                sampler.triggerAttackRelease(["G4", "B4", "D5", "F5"],"1m", "2", 3);
+                sampler.triggerAttackRelease(["A3", "C4", "E4","G4"],"1m", "4", 4);
+                sampler.triggerAttackRelease(["A4", "C5", "E5","G5"],"1m", "6", 3);
+                sampler.triggerAttackRelease(["E3", "G3", "B3","D4"],"1m", "8", 4);
+                sampler.triggerAttackRelease(["E4", "G4", "B4","D5"],"1m", "10", 3);
+                sampler.triggerAttackRelease(["D3", "F3", "A3","C4"],"1m", "12", 4);
+                sampler.triggerAttackRelease(["D4", "F4", "A4","C4"],"1m", "14", 3);
+            };
+        </script>
+
+</head>
+<body>
+    <h1>Simple HTML5 Tone.js Demo</h1>
+    <button onclick="playChord()">Click me to play note!</button>
+</body>
+</html>
