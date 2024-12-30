@@ -10,12 +10,12 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    padding: 0 10px 10px 10px;
+    padding: 0 5px 5px 5px;
     width: 1268px;
     margin: 0 auto 20px auto;
-    border: 2px solid #000;
+    border: 2px solid #888;
     border-radius: 0.5rem;
-    box-shadow: 0px 4px 6px #222;
+    box-shadow: 0px 4px 6px #333;
   }
   .top-section {
     display: flex;
@@ -29,8 +29,8 @@ body {
     vertical-align: top;
     text-align: left;
     width: 300px;
-
     color: white;
+    font-weight: lighter;
     padding: 1rem;
     border-radius: 0.5rem;
     
@@ -38,38 +38,33 @@ body {
   .title-container {
     display: inline-block;
     vertical-align: top;
-    width: 380px;
+    width: 320px;
     color: #ffffff;
-    padding: 1rem;
-    border-radius: 0.5rem;
+    font-size: .9rem;
+    padding:10px; 
   }
   h1{
     font-family: "Bungee Shade", serif;
     font-weight: 400;
     font-size: 30px;
     font-style: normal;
- 
-    
   }
   h2{
- 
     font-weight: 400;
     font-size: 36px;
     font-style: normal;
- 
   }     
   .results-container {
-    width: 780px;
+    width: 900px;
     display: inline-block;
     margin: 10px;
-    background-color: #c5c5c5; /* Light gray for results */
+    background-color: #ddd; /* Light gray for results */
     color: black;
     border-radius: 0.5rem;
     padding: 1rem;
-    border: 2px solid #000;
+    border: 2px solid #222;
     text-align: left;
-  
-    box-shadow: 0px 4px 6px #000;
+    box-shadow: 0px 4px 6px #333;
   }
   .btn-custom {
     background-color: #fa990f;
@@ -119,23 +114,6 @@ body {
       list-style: none;
   } 
  /* FONTS */
- .kanit-thin {
-    font-family: "Kanit", serif;
-    font-weight: 100;
-    font-style: normal;
-  }
-  
-  .kanit-extralight {
-    font-family: "Kanit", serif;
-    font-weight: 200;
-    font-style: normal;
-  }
-  
-  .kanit-light {
-    font-family: "Kanit", serif;
-    font-weight: 300;
-    font-style: normal;
-  }
   
   .kanit-regular {
     font-family: "Kanit", serif;
@@ -166,67 +144,7 @@ body {
     font-weight: 800;
     font-style: normal;
   }
-  
-  .kanit-black {
-    font-family: "Kanit", serif;
-    font-weight: 900;
-    font-style: normal;
-  }
-  
-  .kanit-thin-italic {
-    font-family: "Kanit", serif;
-    font-weight: 100;
-    font-style: italic;
-  }
-  
-  .kanit-extralight-italic {
-    font-family: "Kanit", serif;
-    font-weight: 200;
-    font-style: italic;
-  }
-  
-  .kanit-light-italic {
-    font-family: "Kanit", serif;
-    font-weight: 300;
-    font-style: italic;
-  }
-  
-  .kanit-regular-italic {
-    font-family: "Kanit", serif;
-    font-weight: 400;
-    font-style: italic;
-  }
-  
-  .kanit-medium-italic {
-    font-family: "Kanit", serif;
-    font-weight: 500;
-    font-style: italic;
-  }
-  
-  .kanit-semibold-italic {
-    font-family: "Kanit", serif;
-    font-weight: 600;
-    font-style: italic;
-  }
-  
-  .kanit-bold-italic {
-    font-family: "Kanit", serif;
-    font-weight: 700;
-    font-style: italic;
-  }
-  
-  .kanit-extrabold-italic {
-    font-family: "Kanit", serif;
-    font-weight: 800;
-    font-style: italic;
-  }
-  
-  .kanit-black-italic {
-    font-family: "Kanit", serif;
-    font-weight: 900;
-    font-style: italic;
-  }
-
+   
 /* BODY STYLES*/  
 .rectangle {
     width: 1330px; 
@@ -234,7 +152,7 @@ body {
     padding: 10px  10px  0  10px;
     background-color: #485b68;
     border-radius: 0.5rem;
-    border: 2px solid #000;
+    border: 2px solid #888;
     box-shadow: 0px 4px 6px #000;
 }
 
@@ -610,3 +528,44 @@ body {
   left: 50%;
   transform: translateX(-50%);
 }
+
+/* LOOPER */
+.scale-info{
+    float: left;
+    width: 410px;
+    font-size: 1.2rem;
+}
+.progression-looper {
+    background-color: #b2c6d8;
+    padding: 15px;
+    border-radius: 0.5rem;
+    border: 2px solid #ffffff;
+    box-shadow: 0px 2px 3px #888;
+    float: right;
+    width: 380px;
+  }
+  
+  .progression-looper h3 {
+    margin: 0 0 10px 0;
+  }
+  
+  .transport-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .transport-controls button {
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
+  .volume-slider {
+    width: 100%;
+    margin: 10px 0;
+  }
+  
+  .rhythm-select {
+    width: 100%;
+    margin-top: 10px;
+  }

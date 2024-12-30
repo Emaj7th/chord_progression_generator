@@ -9,6 +9,7 @@
   <script src="js/chord.js"></script><!-- Guitar Chord Diagrams -->
   <script src="js/chord-collection.js"></script><!-- Data for Guitar Chord Diagrams -->
   <script type="text/javascript" src="js/scale.js"></script><!-- Guitar Neck -->
+  <script src="https://cdn.jsdelivr.net/npm/tone@15.0.4/build/Tone.min.js"></script><!-- Keyboard Looper -->
   <!-- python -m http.server 8000 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="style.css">
@@ -51,9 +52,10 @@
       <div class="title-container"><h1 class="text-center fw-bold">Scale and Chord Progressions</h1>
         <br />
         <p style="text-align:justify;">Select a Scale before a Progression to properly filter the Progressions options.<br /><br />
-          Please note that the scale notes will show cases where there are double sharps or double flats, etc., 
-          but these will be converted to note name you would use if you were just referring to the notes directly. 
-        For example, if a scall has "C##" the cord we would display would use "D."</p>
+          Select a Keyboard Rhythm before playing the Progression Looper.<br /><br />
+          Please note that the scale notes will will display double sharps and double flats, etc., 
+          but these notes will be converted to note name you would normally use for the given note position.  
+        For example, if a scale has "C##" when it is used to generate the chord, you will see "D."</p>
         <br />
         
       </div>
@@ -61,6 +63,7 @@
     <div class="results-container">
       <div id="result">
         
+
       </div>
       <div id="chord-chart" class="chord-chart"></div>
 

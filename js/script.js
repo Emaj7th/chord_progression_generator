@@ -1,6 +1,8 @@
 // Configuration Constants
 const scalesChordsURL = 'data/scales_chords.csv';
 const chordProgressionsURL = 'data/chord_progressions.csv';
+const keyboardRhythmsURL = 'data/keyboard_rhythms.csv';
+let keyboardRhythmsData = [];
 
 // Musical constants
 const musicalKeys = [
@@ -62,16 +64,19 @@ musicalKeys.forEach((key) => {
 // Data Loading Functions
 async function loadAllData() {
   try {
-    const [scalesData, progressionsData] = await Promise.all([
+    const [scalesData, progressionsData, rhythmsData] = await Promise.all([
       fetch(scalesChordsURL).then(response => response.text()),
-      fetch(chordProgressionsURL).then(response => response.text())
+      fetch(chordProgressionsURL).then(response => response.text()),
+      fetch(keyboardRhythmsURL).then(response => response.text())
     ]);
 
     scalesChordsData = parseCSVData(scalesData);
     chordProgressionsData = parseCSVData(progressionsData);
+    keyboardRhythmsData = parseCSVData(rhythmsData);
 
     initializeScaleDropdown();
     initializeProgressionDropdown();
+    initializeRhythmDropdown();
   } catch (error) {
     console.error('Error loading data:', error);
   }
@@ -127,6 +132,24 @@ function initializeProgressionDropdown() {
   });
 }
 
+// Add this function for rhythm dropdown initialization
+function initializeRhythmDropdown() {
+  const rhythmSelect = document.createElement('select');
+  rhythmSelect.id = 'rhythm-select';
+  rhythmSelect.className = 'rhythm-select';
+  const optionnote = document.createElement('option');
+  optionnote.textContent = 'Click to Select a Rhythm';
+  rhythmSelect.appendChild(optionnote);
+  keyboardRhythmsData.forEach(rhythm => {
+    const option = document.createElement('option');
+    option.value = rhythm.name;
+    option.textContent = rhythm.name;
+    rhythmSelect.appendChild(option);
+  });
+
+  return rhythmSelect;
+}
+
 // Scale Generation Function
 function getScaleNotes(key, scaleName) {
   let scaleNameClean=scaleName.replace(/\s/g, '').toLowerCase();
@@ -147,12 +170,20 @@ function showPianoChords() {
 
 function getNotesFromRoot(rootNote) {
   const notes = ["c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"];
-  const slicePivot = notes.indexOf(rootNote.toLowerCase());
+  // Convert flats to sharps for lookup
+  const flatToSharp = {
+    'db': 'c#', 'eb': 'd#', 'gb': 'f#', 'ab': 'g#', 'bb': 'a#'
+  };
+  const normalizedRoot = rootNote.toLowerCase();
+  const lookupNote = flatToSharp[normalizedRoot] || normalizedRoot;
+  
+  const slicePivot = notes.indexOf(lookupNote);
   if (slicePivot === -1) return [];
 
   const fromPivot = notes.slice(slicePivot);
   const toPivot = notes.slice(0, slicePivot);
   return [...fromPivot, ...toPivot];
+ 
 }
 
 function getPianoChord(rootNote, chordType) {
@@ -189,7 +220,9 @@ function renderChord(container, chordName) {
   chordElement.setAttribute('size', '3');
   container.appendChild(chordElement);
 
-  chords.replace();
+  if (window.chords && window.chords.replace) {
+    window.chords.replace();
+  }
 }
 
 function setActivePianoKeys(chordNotes = [], keyboardDiv) {
@@ -215,6 +248,269 @@ function renderChanges({ rootNote, chordType, keyboardDiv }) {
     
   }
 }
+
+// Add Tone.js initialization and control
+const sampler = new Tone.Sampler({
+  urls: {
+    A0: "A0.mp3",
+    C1: "C1.mp3",
+    "D#1": "Ds1.mp3",
+    "F#1": "Fs1.mp3",
+    A1: "A1.mp3",
+    C2: "C2.mp3",
+    "D#2": "Ds2.mp3",
+    "F#2": "Fs2.mp3",
+    A2: "A2.mp3",
+    C3: "C3.mp3",
+    "D#3": "Ds3.mp3",
+    "F#3": "Fs3.mp3",
+    A3: "A3.mp3",
+    C4: "C4.mp3",
+    "D#4": "Ds4.mp3",
+    "F#4": "Fs4.mp3",
+    A4: "A4.mp3",
+    C5: "C5.mp3",
+    "D#5": "Ds5.mp3",
+    "F#5": "Fs5.mp3",
+    A5: "A5.mp3",
+    C6: "C6.mp3",
+    "D#6": "Ds6.mp3",
+    "F#6": "Fs6.mp3",
+    A6: "A6.mp3",
+    C7: "C7.mp3",
+    "D#7": "Ds7.mp3",
+    "F#7": "Fs7.mp3",
+    A7: "A7.mp3",
+    C8: "C8.mp3",
+  },
+  release: 1,
+  baseUrl: "https://tonejs.github.io/audio/salamander/",
+}).toDestination();
+
+// Progression Looper class
+class ProgressionLooper {
+  constructor() {
+    this.isPlaying = false;
+    this.currentBPM = 120;
+    this.currentVolume = -12;
+    this.leftOctave = 3;
+    this.rightOctave = 5;
+    this.currentChords = [];
+    this.currentRhythm = null;
+    this.loop = null;
+  }
+
+  createControls() {
+    const container = document.createElement('div');
+    container.className = 'progression-looper';
+    
+    const title = document.createElement('h3');
+    title.textContent = 'Progression Looper';
+    
+    // Transport controls
+    const controls = document.createElement('div');
+    controls.className = 'transport-controls';
+    
+    const playButton = document.createElement('button');
+    playButton.innerHTML = '▶';
+    playButton.id ='playButton'
+    // Bind the click handler to maintain 'this' context
+    playButton.addEventListener('click', () => {
+      console.log('Play button clicked');
+      console.log('Current state:', {
+          rhythm: this.currentRhythm,
+          chords: this.currentChords,
+          isPlaying: this.isPlaying
+      });
+      this.startLoop();
+    });
+
+    const stopButton = document.createElement('button');
+    stopButton.innerHTML = '⏹';
+    stopButton.id = 'stopButton';
+    stopButton.addEventListener('click', () => {
+        console.log('Stop button clicked');
+        this.stopLoop();
+    });
+    
+    // BPM control
+    const bpmSelect = document.createElement('select');
+    for (let bpm = 60; bpm <= 200; bpm += 10) {
+      const option = document.createElement('option');
+      option.value = bpm;
+      option.textContent = `${bpm} BPM`;
+      if (bpm === 120) option.selected = true;
+      bpmSelect.appendChild(option);
+    }
+    bpmSelect.onchange = (e) => {
+      this.currentBPM = parseInt(e.target.value);
+      if (this.isPlaying) {
+        Tone.Transport.bpm.value = this.currentBPM;
+      }
+    };
+
+    // Volume slider
+    const volumeSlider = document.createElement('input');
+    volumeSlider.type = 'range';
+    volumeSlider.min = -60;
+    volumeSlider.max = 0;
+    volumeSlider.value = this.currentVolume;
+    volumeSlider.className = 'volume-slider';
+    volumeSlider.oninput = (e) => {
+      this.currentVolume = parseInt(e.target.value);
+      sampler.volume.value = this.currentVolume;
+    };
+
+    const rhythmTitle = document.createElement('div');
+    rhythmTitle.textContent = 'Keyboard Rhythms';
+
+    // Rhythm selector
+    const rhythmSelect = initializeRhythmDropdown();
+    rhythmSelect.onchange = (e) => {
+      this.currentRhythm = keyboardRhythmsData.find(r => r.name === e.target.value);
+      if (this.isPlaying) {
+        this.restartLoop();
+      }
+    };
+
+    // Assemble controls
+    controls.appendChild(playButton);
+    controls.appendChild(stopButton);
+    controls.appendChild(bpmSelect);
+    controls.appendChild(volumeSlider);
+    
+    container.appendChild(title);
+    container.appendChild(controls);
+    container.appendChild(rhythmTitle);
+    container.appendChild(rhythmSelect);
+
+    return container;
+  }
+
+  setChords(chords) {
+    this.currentChords = chords;
+  }
+
+  createChordNotes(chord, octave) {
+    console.log('Creating chord notes:', {
+      chord,
+      octave,
+      chordType: chord.chordType
+    });
+    // Convert chord to array of notes with octave
+    const baseNote = chord.note;
+    const chordType = chord.chordType;
+    
+    // Use existing chordScheme
+    const scheme = chordScheme[chordType] || chordScheme['maj'];
+    return scheme.map(interval => {
+        const note = Tone.Frequency(baseNote + octave).transpose(interval);
+        return note.toNote();
+    });
+  }
+
+  parseNoteValue(noteType) {
+    const noteValues = {
+      'W': '1n',    // whole note
+      'H': '2n',    // half note
+      'Q': '4n',    // quarter note
+      'E': '8n',    // eighth note
+      'dH': '2n.',  // dotted half note
+      'dQ': '4n.',  // dotted quarter note
+      'dE': '8n.'   // dotted eighth note
+    };
+    return noteValues[noteType] || '4n';
+  }
+
+  startLoop() {
+    console.log('StartLoop called', {
+      hasRhythm: !!this.currentRhythm,
+      chordCount: this.currentChords.length,
+      rhythm: this.currentRhythm
+    });
+    if (!this.currentRhythm || this.currentChords.length === 0) return;
+    
+    this.isPlaying = true;
+    Tone.Transport.bpm.value = this.currentBPM;
+
+    // Create left and right hand patterns
+    const leftHandPattern = [
+      this.currentRhythm.left1.split(','),
+      this.currentRhythm.left2.split(','),
+      this.currentRhythm.left3.split(','),
+      this.currentRhythm.left4.split(',')
+    ];
+    console.log('Left hand pattern:', leftHandPattern);
+    const rightHandPattern = [
+      this.currentRhythm.right1.split(','),
+      this.currentRhythm.right2.split(','),
+      this.currentRhythm.right3.split(','),
+      this.currentRhythm.right4.split(',')
+    ];
+    console.log('Right hand pattern:', rightHandPattern);
+    let currentBeat = 0;
+    const totalBeats = 16; // 4 chords * 4 beats each
+
+    this.loop = new Tone.Loop((time) => {
+      console.log('Loop iteration:', {
+        currentBeat,
+        chordIndex: Math.floor(currentBeat / 4),
+        beatInChord: currentBeat % 4
+      });
+      const chordIndex = Math.floor(currentBeat / 4);
+      const beatInChord = currentBeat % 4;
+      
+      // Process left hand
+      const leftBeat = leftHandPattern[chordIndex][beatInChord];
+      if (leftBeat.startsWith('1')) {
+        const noteType = leftBeat.substring(1);
+        const duration = this.parseNoteValue(noteType);
+        const notes = this.createChordNotes(this.currentChords[chordIndex], this.leftOctave);
+        console.log('Playing left hand:', {
+          notes,
+          duration,
+          time
+        });
+        sampler.triggerAttackRelease(notes, duration, time);
+      }
+
+      // Process right hand
+      const rightBeat = rightHandPattern[chordIndex][beatInChord];
+      if (rightBeat.startsWith('1')) {
+        const noteType = rightBeat.substring(1);
+        const duration = this.parseNoteValue(noteType);
+        const notes = this.createChordNotes(this.currentChords[chordIndex], this.rightOctave);
+        console.log('Playing right hand:', {
+          notes,
+          duration,
+          time
+        });
+        sampler.triggerAttackRelease(notes, duration, time);
+      }
+
+      currentBeat = (currentBeat + 1) % totalBeats;
+    }, "4n").start(0);
+
+    Tone.Transport.start();
+  }
+
+  stopLoop() {
+    this.isPlaying = false;
+    if (this.loop) {
+      this.loop.stop();
+      this.loop.dispose();
+    }
+    Tone.Transport.stop();
+  }
+
+  restartLoop() {
+    this.stopLoop();
+    this.startLoop();
+  }
+}
+
+// Instance of the Progression Looper
+const progressionLooper = new ProgressionLooper();
 
 // Event Handlers
 scaleDropdown.addEventListener('change', () => {
@@ -285,24 +581,34 @@ document.getElementById('generate').addEventListener('click', () => {
   const scaleNotes = getScaleNotes(selectedKey, selectedScale);
   const chordTypes = Array(7).fill('').map((_, i) => scaleData[i + 1] || '');
 
+  
+
   const chords = selectedProgression.map(step => {
     const note = scaleNotes[step - 1];
     const chordType = chordTypes[step - 1];
     const chordName = chordType === 'maj' ? note : `${note}${chordType}`;
-
+    
     return { 
       name: chordName, 
       note: note, 
       chordType: chordType 
     };
   });
-
+  progressionLooper.setChords(chords);
   resultContainer.innerHTML = `
-    <h2><strong>${selectedKey} ${selectedScale}</strong></h2>
+    <div class="scale-info"><h2><strong>${selectedKey} ${selectedScale}</strong></h2>
     <div><strong>Scale Notes:</strong> ${scaleNotes.join(', ')}</div>
     <div><strong>Set:</strong> ${chordSet}</div>
-    <div><strong>Progression:</strong> ${chords.map(chord => chord.name).join(' | ')}</div>
+    <div><strong>Progression:</strong> ${chords.map(chord => chord.name).join(' | ')}</div></div>
+    <div class="progression-looper-container"></div><br clear="ALL" />
   `;
+
+  // Set the chords before creating controls
+  progressionLooper.setChords(chords);
+
+  // Append the controls to the container instead of using innerHTML
+  const looperContainer = resultContainer.querySelector('.progression-looper-container');
+  looperContainer.appendChild(progressionLooper.createControls());
 
   // Render chord diagrams
   chordChartContainer.innerHTML = '';
