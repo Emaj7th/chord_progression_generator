@@ -1,34 +1,57 @@
-// URLs for the CSV files
+// Configuration Constants
 const scalesChordsURL = 'data/scales_chords.csv';
- 
 const chordProgressionsURL = 'data/chord_progressions.csv';
 
-// Select elements in the DOM
+// Musical constants
+const musicalKeys = [
+  "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+];
+
+// Note simplification map
+const noteSimplification = {
+  "Dbb": "C", "B##": "C#", "Ebb": "D", "C##": "D",
+  "Fbb": "Eb", "D##": "E", "Gbb": "F", "E##": "F#",
+  "F##": "G#", "Abb": "G", "G##": "A", "Bbb": "A",
+  "Cbb": "Bb", "A##": "B", "B#": "C", "E#": "F"
+};
+
+// Piano chord scheme
+const chordScheme = {
+  "5": [0, 7],
+  "7": [0, 4, 7, 10],
+  "7sus4": [0, 5, 7, 10],
+  "aug": [0, 4, 8],
+  "dim": [0, 3, 6],
+  "dim7": [0, 3, 6, 9],
+  "maj": [0, 4, 7],
+  "m": [0, 3, 7],
+  "maj7": [0, 4, 7, 11],
+  "m7": [0, 3, 7, 10],
+  "maj7#5": [0, 4, 8, 11],
+  "m7#5": [0, 3, 8, 10],
+  "maj7b5": [0, 4, 6, 11],
+  "m7b5": [0, 3, 6, 10],
+  "mmaj7": [0, 3, 7, 11],
+  "sus2": [0, 2, 7],
+  "sus4": [0, 5, 7],
+};
+
+// DOM Elements
 const keyDropdown = document.getElementById('key');
 const scaleDropdown = document.getElementById('scale');
 const progressionDropdown = document.getElementById('progression');
 const resultContainer = document.getElementById('result');
 const chordChartContainer = document.getElementById('chord-chart');
+const pianoChord0 = document.getElementById('chord0');
+const pianoChord1 = document.getElementById('chord1');
+const pianoChord2 = document.getElementById('chord2');
+const pianoChord3 = document.getElementById('chord3');
 
-// Initialize variables for storing parsed data
+// State Management
 let scalesChordsData = [];
-let chordTypesData = [];
 let chordProgressionsData = [];
 
-// Predefined list of musical keys
-const musicalKeys = [
-  "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "Bb", "B"
-];
-
-const keyPreferences = {
-  "C": "sharp", "G": "sharp", "D": "sharp", "A": "sharp", "E": "sharp", "B": "sharp",
-  "F#": "sharp", "C#": "sharp", "Bb": "flat", "Eb": "flat",
-  "Ab": "flat", "Db": "flat", "Gb": "flat"
-};
-
-//TODO - Bb Dorian, Bb Lydian Augmented scale missing
-
-// Populate "Select Key" dropdown with all musical keys
+// Initialize dropdowns
 musicalKeys.forEach((key) => {
   const option = document.createElement('option');
   option.value = key;
@@ -36,247 +59,126 @@ musicalKeys.forEach((key) => {
   keyDropdown.appendChild(option);
 });
 
-// Helper: Parse CSV to JSON
-function parseCSV(url, callback) {
-  fetch(url)
-    .then((response) => response.text())
-    .then((data) => {
-      const rows = data.split('\n').filter((row) => row.trim() !== ''); // Remove empty rows
-      const headers = rows.shift().split(',').map((header) => header.trim()); // Get headers
+// Data Loading Functions
+async function loadAllData() {
+  try {
+    const [scalesData, progressionsData] = await Promise.all([
+      fetch(scalesChordsURL).then(response => response.text()),
+      fetch(chordProgressionsURL).then(response => response.text())
+    ]);
 
-      const result = rows.map((row) => {
-        const fields = [];
-        let currentField = '';
-        let inQuotes = false;
+    scalesChordsData = parseCSVData(scalesData);
+    chordProgressionsData = parseCSVData(progressionsData);
 
-        for (let char of row) {
-          if (char === '"' && !inQuotes) {
-            inQuotes = true; // Start of quoted field
-          } else if (char === '"' && inQuotes) {
-            inQuotes = false; // End of quoted field
-          } else if (char === ',' && !inQuotes) {
-            fields.push(currentField.trim()); // Add field
-            currentField = ''; // Reset field
-          } else {
-            currentField += char; // Append to field
-          }
-        }
-        fields.push(currentField.trim()); // Add the last field
-
-        return headers.reduce((obj, header, index) => {
-          obj[header] = fields[index] || '';
-          return obj;
-        }, {});
-      });
-
-      callback(result);
-    })
-    .catch((error) => console.error(`Error loading CSV from ${url}:`, error));
+    initializeScaleDropdown();
+    initializeProgressionDropdown();
+  } catch (error) {
+    console.error('Error loading data:', error);
+  }
 }
 
-// Load all CSV data
-Promise.all([
-  parseCSV(scalesChordsURL, (data) => scalesChordsData = data),
-  parseCSV(chordProgressionsURL, (data) => chordProgressionsData = data)
-]);
+function parseCSVData(csvText) {
+  const rows = csvText.split('\n').filter(row => row.trim());
+  const headers = rows.shift().split(',').map(header => header.trim());
 
-// Populate "Select Scale" dropdown
-parseCSV(scalesChordsURL, (data) => {
-  scalesChordsData = data;
-  const uniqueScales = [...new Set(scalesChordsData.map((row) => row.Scale))];
-  uniqueScales.forEach((scale) => {
+  return rows.map(row => {
+    const fields = [];
+    let currentField = '';
+    let inQuotes = false;
+
+    for (let char of row) {
+      if (char === '"' && !inQuotes) {
+        inQuotes = true;
+      } else if (char === '"' && inQuotes) {
+        inQuotes = false;
+      } else if (char === ',' && !inQuotes) {
+        fields.push(currentField.trim());
+        currentField = '';
+      } else {
+        currentField += char;
+      }
+    }
+    fields.push(currentField.trim());
+
+    return headers.reduce((obj, header, index) => {
+      obj[header] = fields[index] || '';
+      return obj;
+    }, {});
+  });
+}
+
+function initializeScaleDropdown() {
+  const uniqueScales = [...new Set(scalesChordsData.map(row => row.Scale))];
+  uniqueScales.forEach(scale => {
     const option = document.createElement('option');
     option.value = scale;
     option.textContent = scale;
     scaleDropdown.appendChild(option);
   });
-});
+}
 
-// Populate "Select Progression" dropdown
-parseCSV(chordProgressionsURL, (data) => {
-  chordProgressionsData = data;
-  chordProgressionsData.forEach((row) => {
+function initializeProgressionDropdown() {
+  chordProgressionsData.forEach(row => {
     const progression = row.ChordProgressions.trim().replace(/^"|"$/g, '');
     const option = document.createElement('option');
     option.value = progression;
     option.textContent = progression;
     progressionDropdown.appendChild(option);
   });
-});
-
-scaleDropdown.addEventListener('change', () => {
-  const selectedScale = scaleDropdown.value;
-  const scaleData = scalesChordsData.find((row) => row.Scale === selectedScale);
-  if (!scaleData) {
-    console.error(`Scale data not found for scale: ${selectedScale}`);
-    return;
-  }
-
-  // Parse ScaleSteps
-  const scaleSteps = scaleData.ScaleSteps
-    ? scaleData.ScaleSteps.replace(/^"|"$/g, '').split(',').map(Number)
-    : [];
-  if (scaleSteps.length === 0) {
-    console.error(`Invalid scale steps for scale: ${selectedScale}`);
-    return;
-  }
-
-  // Filter Progressions
-  const validProgressions = chordProgressionsData.filter((row) => {
-    const progressionSteps = row.ChordProgressions.split(',').map((x) => parseInt(x.trim()));
-    return progressionSteps.every((step) => step >= 1 && step <= scaleSteps.length);
-  });
-
-  // Update Progression Dropdown
-  progressionDropdown.innerHTML = ''; // Clear existing options
-  validProgressions.forEach((row) => {
-    const option = document.createElement('option');
-    option.value = row.ChordProgressions.trim();
-    option.textContent = row.ChordProgressions.trim();
-    progressionDropdown.appendChild(option);
-  });
-
-  console.log("Filtered Progressions:", validProgressions.map((row) => row.ChordProgressions));
-});
-
-document.getElementById('random').addEventListener('click', () => {
-  // Select a random key
-  const randomKeyIndex = Math.floor(Math.random() * musicalKeys.length);
-
-  keyDropdown.value = musicalKeys[randomKeyIndex];
-
-  // Select a random scale
-  const scales = Array.from(scaleDropdown.options).map(option => option.value);
-  const randomScaleIndex = Math.floor(Math.random() * scales.length);
-  scaleDropdown.value = scales[randomScaleIndex];
-
-  // Trigger scale change to filter progressions
-  scaleDropdown.dispatchEvent(new Event('change'));
-
-  // Wait for progressions to update (short delay to simulate real-time filtering)
-  setTimeout(() => {
-    // Select a random progression
-    const progressions = Array.from(progressionDropdown.options).map(option => option.value);
-    const randomProgressionIndex = Math.floor(Math.random() * progressions.length);
-    progressionDropdown.value = progressions[randomProgressionIndex];
-
-    // Select a random chord set
-    const chordSets = Array.from(document.getElementById('chord-set').options).map(option => option.value);
-    const randomChordSetIndex = Math.floor(Math.random() * chordSets.length);
-    document.getElementById('chord-set').value = chordSets[randomChordSetIndex];
-    selectedKey = keyDropdown.value;
-    selectedScale = scaleDropdown.value
-    // Trigger the "Generate" button
-    document.getElementById('generate').click();
-    launch(selectedKey,selectedScale);
-  }, 200); // Adjust delay if needed
-});
-
-
-// Helper: Calculate notes in the scale
-function getScaleNotes(key, scaleSteps) {
-  // First convert the input key to its sharp equivalent for indexing
-  const flatToSharp = {
-    "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"
-  };
-
-  const sharpToFlat = {
-    "C#": "Db", "D#": "Eb", "F#": "Gb", "G#": "Ab", "A#": "Bb"
-  };
-
-  const musicalKeysSimplified = [
-    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-  ];
-
-  // Convert input key to sharp version for indexing if it's flat
-  const indexKey = key.includes('b') ? flatToSharp[key] || key : key;
-  const keyPreference = keyPreferences[key];
-  const rootNoteIndex = musicalKeysSimplified.indexOf(indexKey);
-
-  if (rootNoteIndex === -1) {
-    console.error(`Key "${key}" not found in musicalKeysSimplified.`);
-    return [];
-  }
-
-  let lastPureNote = "";
-  const scaleNotes = [];
-
-  scaleSteps.forEach((step) => {
-    const noteIndex = (rootNoteIndex + step) % musicalKeysSimplified.length;
-    let note = musicalKeysSimplified[noteIndex];
-
-    // Adjust notes based on preference
-    if (keyPreference === "flat" && sharpToFlat[note]) {
-      note = sharpToFlat[note];
-    } else if (keyPreference === "sharp" && flatToSharp[note]) {
-      note = flatToSharp[note];
-    }
-
-    const pureNote = note.replace(/[#b]/g, "");
-
-    // Check for duplicate "pure" notes
-    if (pureNote === lastPureNote) {
-      if (note.includes("#")) {
-        note = sharpToFlat[note];
-      } else if (note.includes("b")) {
-        note = flatToSharp[note];
-      } else {
-        const nextNoteIndex = (musicalKeysSimplified.indexOf(pureNote) + 1) % musicalKeysSimplified.length;
-        note = sharpToFlat[musicalKeysSimplified[nextNoteIndex]] || musicalKeysSimplified[nextNoteIndex] + "b";
-      }
-    }
-
-    scaleNotes.push(note);
-    lastPureNote = pureNote;
-  });
-
-  return scaleNotes;
 }
 
-function getChordHtml(chordName,layout,size) {
-  var size = size || 5
-  var chordsHtmlArr = []   //example: <chord name="D" positions="xx0232" fingers="---132" size="3" ></chord>
-  var chordVariations = []
-  if (CHORD_COLLECTION[chordName]) {
-      chordVariations = CHORD_COLLECTION[chordName]
-  } else {
-      chordVariations.push({positions:['x','x','x','x','x','x'],fingerings:[[0,0,0,0,0,0]]})
-      chordName = chordName + ' (N/A)'
-  }
-  chordVariations.forEach(function(variation,i){
-      var positionsStr = variation.positions.join('')
-      variation.fingerings.forEach(function(fingering,i){
-          var fingeringStr = fingering.join('').replace(/0/g,'-')
-          if (positionsStr.length===6 && fingeringStr.length===6 && positionsStr !== 'xxxxxx') {
-              var chordHtml = '<chord name="' + chordName  + '" positions="' + positionsStr + '" fingers="' + fingeringStr + '" size="' + size + '" layout="' + layout + '" strings="EADGBe"></chord>'
-              chordsHtmlArr.push(chordHtml)
-          }
-      })
-  })
-  return chordsHtmlArr
+// Scale Generation Function
+function getScaleNotes(key, scaleName) {
+  let scaleNameClean=scaleName.replace(/\s/g, '').toLowerCase();
+  console.log(scaleNameClean);
+  const scale = pianissimo.note(key).toScale(scaleNameClean).getNotesName();
+  let notes = scale.map(note => note.replace(/[0-9]/g, ""));
+  
+  // Simplify any double sharps/flats
+  notes = notes.map(note => noteSimplification[note] || note);
+  
+  return notes;
 }
 
-// Render chord diagrams using chords.js and CHORD_COLLECTION
+// Piano Functions
+function showPianoChords() {
+  document.getElementById('keyboards').classList.remove('piano-hidden');
+}
+
+function getNotesFromRoot(rootNote) {
+  const notes = ["c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"];
+  const slicePivot = notes.indexOf(rootNote.toLowerCase());
+  if (slicePivot === -1) return [];
+
+  const fromPivot = notes.slice(slicePivot);
+  const toPivot = notes.slice(0, slicePivot);
+  return [...fromPivot, ...toPivot];
+}
+
+function getPianoChord(rootNote, chordType) {
+  const notesFromRoot = getNotesFromRoot(rootNote);
+  if (notesFromRoot.length > 0 && chordScheme[chordType]) {
+    return chordScheme[chordType].map(noteIndex => notesFromRoot[noteIndex]);
+  }
+  return [];
+}
+
+// Rendering Functions
 function renderChord(container, chordName) {
-  const flatToSharp = {
-    "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"
-  };
+  // Simplify any double sharps/flats in the chord name
+  const simplifiedName = noteSimplification[chordName.replace(/m.*|dim.*|aug.*|sus.*|[0-9]/g, '')] || 
+                        chordName.replace(/m.*|dim.*|aug.*|sus.*|[0-9]/g, '');
+  const chordSuffix = chordName.replace(/[A-G][#b]*/g, '');
+  const finalChordName = simplifiedName + chordSuffix;
 
-  // Convert flat notes to sharp equivalents
-  const sharpChordName = chordName
-    .replace(/[A-G]b/g, (match) => flatToSharp[match] || match);
-
-  console.log(`Rendering chord: ${sharpChordName}`);
-
-  if (!CHORD_COLLECTION[sharpChordName]) {
-    console.error(`Chord "${sharpChordName}" not found in CHORD_COLLECTION.`);
+  if (!CHORD_COLLECTION[finalChordName]) {
     const errorDiv = document.createElement('div');
     errorDiv.textContent = `Chord "${chordName}" not available.`;
     container.appendChild(errorDiv);
     return;
   }
 
-  const chordData = CHORD_COLLECTION[sharpChordName][0];
+  const chordData = CHORD_COLLECTION[finalChordName][0];
   const positions = chordData.positions.join('');
   const fingers = chordData.fingerings[0].join('').replace(/0/g, '-');
 
@@ -290,87 +192,145 @@ function renderChord(container, chordName) {
   chords.replace();
 }
 
+function setActivePianoKeys(chordNotes = [], keyboardDiv) {
+  const pianoKeys = document.querySelectorAll(`${keyboardDiv} .key`);
+  const pianoKeyNotes = Array.from(pianoKeys, pKey => pKey.dataset.note);
+  const keyStartIndex = pianoKeyNotes.indexOf(chordNotes[0]);
+  const tmpChordNotes = [...chordNotes];
 
-// Generate Progression and Display Results
+  pianoKeys.forEach((pianoKey, i) => {
+    if (tmpChordNotes.includes(pianoKeyNotes[i]) && i >= keyStartIndex) {
+      pianoKey.classList.add("active");
+      tmpChordNotes.splice(tmpChordNotes.indexOf(pianoKeyNotes[i]), 1);
+    } else {
+      pianoKey.classList.remove("active");
+    }
+  });
+}
+
+function renderChanges({ rootNote, chordType, keyboardDiv }) {
+  if (rootNote && chordType) {
+    const chordNotes = getPianoChord(rootNote, chordType);
+    setActivePianoKeys(chordNotes, keyboardDiv);
+    
+  }
+}
+
+// Event Handlers
+scaleDropdown.addEventListener('change', () => {
+  const selectedScale = scaleDropdown.value;
+  const scaleData = scalesChordsData.find(row => row.Scale === selectedScale);
+
+  if (!scaleData) return;
+
+  const scaleNotes = getScaleNotes(keyDropdown.value, selectedScale);
+  const validProgressions = chordProgressionsData.filter(row => {
+    const progressionSteps = row.ChordProgressions.split(',').map(x => parseInt(x.trim()));
+    return progressionSteps.every(step => step >= 1 && step <= scaleNotes.length);
+  });
+
+  progressionDropdown.innerHTML = '';
+  validProgressions.forEach(row => {
+    const option = document.createElement('option');
+    option.value = row.ChordProgressions.trim();
+    option.textContent = row.ChordProgressions.trim();
+    progressionDropdown.appendChild(option);
+  });
+});
+
+document.getElementById('random').addEventListener('click', () => {
+  // First update the key and scale
+  const randomKey = musicalKeys[Math.floor(Math.random() * musicalKeys.length)];
+  keyDropdown.value = randomKey;
+
+  const scales = Array.from(scaleDropdown.options).map(option => option.value);
+  const randomScaleIndex = Math.floor(Math.random() * scales.length);
+  scaleDropdown.value = scales[randomScaleIndex];
+
+  // Trigger scale change to update progressions
+  scaleDropdown.dispatchEvent(new Event('change'));
+  // Display Piano diagrams:
+  showPianoChords();
+  // Use Promise to ensure scale change is complete
+  Promise.resolve().then(() => {
+    // Then update progression and chord set
+    const progressions = Array.from(progressionDropdown.options).map(option => option.value);
+    progressionDropdown.value = progressions[Math.floor(Math.random() * progressions.length)];
+
+    const chordSets = Array.from(document.getElementById('chord-set').options).map(option => option.value);
+    document.getElementById('chord-set').value = chordSets[Math.floor(Math.random() * chordSets.length)];
+
+    // Finally trigger generate to update display
+    document.getElementById('generate').click();
+  });
+});
+
 document.getElementById('generate').addEventListener('click', () => {
   const selectedKey = keyDropdown.value;
   const selectedScale = scaleDropdown.value;
-  const selectedProgression = progressionDropdown.value.split(',').map((x) => parseInt(x.trim()));
+  const selectedProgression = progressionDropdown.value.split(',').map(x => parseInt(x.trim()));
   const chordSet = document.getElementById('chord-set').value;
 
-
   const scaleData = scalesChordsData.find(
-      (row) => row.Scale === selectedScale && row.ChordSetName.toLowerCase() === chordSet.toLowerCase()
+    row => row.Scale === selectedScale && row.ChordSetName.toLowerCase() === chordSet.toLowerCase()
   );
 
   if (!scaleData) {
-      resultContainer.innerHTML = `<p><strong>Error:</strong> Scale data not found for the selected scale and chord set.</p>`;
-      return;
+    resultContainer.innerHTML = `<p><strong>Error:</strong> Scale data not found for the selected scale and chord set.</p>`;
+    return;
   }
+  // Display Piano diagrams:
+  showPianoChords();
 
-  const scaleSteps = scaleData.ScaleSteps
-      ? scaleData.ScaleSteps.replace(/^"|"$/g, '').split(',').map(Number)
-      : [];
-  const scaleNotes = getScaleNotes(selectedKey, scaleSteps);
+  const scaleNotes = getScaleNotes(selectedKey, selectedScale);
+  const chordTypes = Array(7).fill('').map((_, i) => scaleData[i + 1] || '');
 
-  const scaleFormula = scaleData.Formula
-      ? scaleData.Formula.replace(/^"|"$/g, '').split(',').map(Number)
-      : [];
+  const chords = selectedProgression.map(step => {
+    const note = scaleNotes[step - 1];
+    const chordType = chordTypes[step - 1];
+    const chordName = chordType === 'maj' ? note : `${note}${chordType}`;
 
-  const invalidNotes = selectedProgression.filter((step) => step < 1 || step > scaleSteps.length);
-  if (invalidNotes.length > 0) {
-      resultContainer.innerHTML = `<p><strong>Error:</strong> This progression includes notes outside of the selected scale.</p>`;
-      return;
-  }
-
-  const chordTypes = [];
-  for (let i = 1; i <= 7; i++) {
-      const chordType = scaleData[i];
-      chordTypes.push(chordType || '');
-  }
-
-  const chords = selectedProgression.map((step) => {
-      const note = scaleNotes[step - 1];
-      const chordType = chordTypes[step - 1];
-      if (chordType === 'maj') {
-          return { name: `${note}`, note, chordType };
-      } else {
-          return { name: `${note}${chordType}`, note, chordType };
-      }
+    return { 
+      name: chordName, 
+      note: note, 
+      chordType: chordType 
+    };
   });
 
-  function convertFormulaToSteps(formula) {
-    return formula.map(num => {
-      switch(num) {
-        case 1: return 'H';
-        case 2: return 'W';
-        case 3: return 'W+H';
-        default: return num;
-      }
-    }).join(', ');
-  }
-  
-  // Then in the results output:
   resultContainer.innerHTML = `
-      <div><strong>Key:</strong> ${selectedKey}</div>
-      <div><strong>Scale:</strong> ${selectedScale}</div>
-      <div><strong>Scale Formula:</strong> ${convertFormulaToSteps(scaleFormula)}</div>
-      <div><strong>Set:</strong> ${chordSet}</div>
-      <div><strong>Progression:</strong> ${chords.map(chord => chord.name).join(' | ')}</div>
+    <h2><strong>${selectedKey} ${selectedScale}</strong></h2>
+    <div><strong>Scale Notes:</strong> ${scaleNotes.join(', ')}</div>
+    <div><strong>Set:</strong> ${chordSet}</div>
+    <div><strong>Progression:</strong> ${chords.map(chord => chord.name).join(' | ')}</div>
   `;
 
   // Render chord diagrams
-  const chordChartContainer = document.getElementById('chord-chart');
-  chordChartContainer.innerHTML = ''; // Clear previous diagrams
-
-  chords.forEach((chord) => {
-      const container = document.createElement('div');
-      container.style.margin = '4px';
-      chordChartContainer.appendChild(container);
-
-      // Render each chord
-      renderChord(container, chord.name);
+  chordChartContainer.innerHTML = '';
+  chords.forEach((chord, index) => {
+    const container = document.createElement('div');
+    container.style.margin = '4px';
+    chordChartContainer.appendChild(container);
+    renderChord(container, chord.name);
+ 
+    // Handle piano chord display
+    if (index === 0) {
+      pianoChord0.innerHTML = chord.name;
+      renderChanges({ rootNote: chord.note.toLowerCase(), chordType: chord.chordType, keyboardDiv: '#piano-keyboard0' });
+    } else if (index === 1) {
+      pianoChord1.innerHTML = chord.name;
+      renderChanges({ rootNote: chord.note.toLowerCase(), chordType: chord.chordType, keyboardDiv: '#piano-keyboard1' });
+    } else if (index === 2) {
+      pianoChord2.innerHTML = chord.name;
+      renderChanges({ rootNote: chord.note.toLowerCase(), chordType: chord.chordType, keyboardDiv: '#piano-keyboard2' });
+    } else if (index === 3) {
+      pianoChord3.innerHTML = chord.name;
+      renderChanges({ rootNote: chord.note.toLowerCase(), chordType: chord.chordType, keyboardDiv: '#piano-keyboard3' });
+    }
   });
-  // update guitar neck with new scale
-  launch(selectedKey,selectedScale);
+  
+  // Update guitar neck with new scale
+  launch(selectedKey, selectedScale);
 });
+
+// Initialize data loading on script load
+loadAllData();
