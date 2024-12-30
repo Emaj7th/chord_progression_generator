@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pianissimo test</title>
+
+  <script src="../js/pianissimo.bundle.min.js"></script><!-- music theory -->
+    <script>
+    let selectedKey = "C";
+    let selectedScale="locrian"
+    let scale = pianissimo
+    .note(selectedKey) // FOR EXAMPLE: "C"
+    .toScale(selectedScale) //FOR EXAMPLE "locrian"
+    .getNotesName(); // OUTPUTS: [ "C3", "Db3", "Eb3", "F3", "Gb3", "Ab3", "Bb3" ]
+    let strippedScale = scale.map(note => note.replace(/[0-9]/g, ""));
+    console.log(strippedScale); // OUTPUTS: [ "C", "Db", "Eb", "F", "Gb", "Ab", "Bb" ] 
+    </script>
+</head>
+<body>
+<br />
+
+ 
+</body>
+</html>

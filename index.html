@@ -5,16 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scale and Chord Progressions</title>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="js/chord.js"></script>
-  <script src="js/chord-collection.js"></script>
-  <script type="text/javascript" src="js/scale.js"></script>
-  
-  <!-- Bootstrap CSS -->
+  <script src="js/pianissimo.bundle.min.js"></script><!-- music theory -->
+  <script src="js/chord.js"></script><!-- Guitar Chord Diagrams -->
+  <script src="js/chord-collection.js"></script><!-- Data for Guitar Chord Diagrams -->
+  <script type="text/javascript" src="js/scale.js"></script><!-- Guitar Neck -->
   <!-- python -m http.server 8000 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 </head>
-<body>
+  <body>
 <div class="rectangle">
 
   <div class="menu">
@@ -45,9 +48,12 @@
     <!-- Top Section -->
     <div class="top-section">
       <!-- Form Section -->
-      <div class="title-container"><h2 class="text-center fw-bold">Scale and Chord Progressions</h2>
+      <div class="title-container"><h1 class="text-center fw-bold">Scale and Chord Progressions</h1>
         <br />
-        <p>Select Scale before Progression to properly filter Progressions options.</p>
+        <p style="text-align:justify;">Select a Scale before a Progression to properly filter the Progressions options.<br /><br />
+          Please note that the scale notes will show cases where there are double sharps or double flats, etc., 
+          but these will be converted to note name you would use if you were just referring to the notes directly. 
+        For example, if a scall has "C##" the cord we would display would use "D."</p>
         <br />
         
       </div>
@@ -58,7 +64,7 @@
       </div>
       <div id="chord-chart" class="chord-chart"></div>
 
-      <div id="keyboards">
+      <div id="keyboards" class="piano-hidden">
         <div class="keyboard"><div class="piano-chord-name" id="chord0">chord 1: </div> 
           <div id="piano-keyboard0">
             <div class="key key-natural" data-note="c"></div>

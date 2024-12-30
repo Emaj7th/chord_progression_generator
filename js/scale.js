@@ -62,15 +62,15 @@ function getNote(x) {
 // Gets all the notes in a particular chord
 function getFullChord(y, x) {
   switch(y) {
-    case "Pentatonic Minor": return [(x+0)%frets, (x+3)%frets, (x+5)%frets, (x+7)%frets, (x+10)%frets];
-    case "Pentatonic Major": return [(x-3)%frets, (x+0)%frets, (x+2)%frets, (x+4)%frets, (x+7)%frets, (x+9)%frets];
-    case "Ionian (Major)": return [(x+0)%frets, (x+2)%frets, (x+4)%frets, (x+5)%frets, (x+7)%frets, (x+9)%frets, (x+11)%frets];
+    case "Minor Pentatonic": return [(x+0)%frets, (x+3)%frets, (x+5)%frets, (x+7)%frets, (x+10)%frets];
+    case "Major Pentatonic": return [(x-3)%frets, (x+0)%frets, (x+2)%frets, (x+4)%frets, (x+7)%frets, (x+9)%frets];
+    case "Ionian": return [(x+0)%frets, (x+2)%frets, (x+4)%frets, (x+5)%frets, (x+7)%frets, (x+9)%frets, (x+11)%frets];
     case "Dorian": return [(x+0)%frets, (x+2)%frets, (x+3)%frets, (x+5)%frets, (x+7)%frets, (x+9)%frets, (x+10)%frets];
     case "Phrygian": return [(x+0)%frets, (x+1)%frets, (x+3)%frets, (x+5)%frets, (x+7)%frets, (x+8)%frets, (x+10)%frets];
     case "Lydian": return [(x+0)%frets, (x+2)%frets, (x+4)%frets, (x+6)%frets, (x+7)%frets, (x+9)%frets, (x+11)%frets];
     case "Lydian Augmented": return [(x+0)%frets, (x+2)%frets, (x+4)%frets, (x+6)%frets, (x+7)%frets, (x+9)%frets, (x+11)%frets];
     case "Mixolydian": return [(x+0)%frets, (x+2)%frets, (x+4)%frets, (x+5)%frets, (x+7)%frets, (x+9)%frets, (x+10)%frets];
-    case "Aeolian (Minor)": return [(x+0)%frets, (x+2)%frets, (x+3)%frets, (x+5)%frets, (x+7)%frets, (x+8)%frets, (x+10)%frets];
+    case "Aeolian": return [(x+0)%frets, (x+2)%frets, (x+3)%frets, (x+5)%frets, (x+7)%frets, (x+8)%frets, (x+10)%frets];
     case "Locrian": return [(x+0)%frets, (x+1)%frets, (x+3)%frets, (x+5)%frets, (x+6)%frets, (x+8)%frets, (x+10)%frets];
     case "Spanish": return [(x+0)%frets, (x+1)%frets, (x+4)%frets, (x+5)%frets, (x+7)%frets, (x+8)%frets, (x+10)%frets];
     case "Harmonic Minor": return [(x+0)%frets, (x+2)%frets, (x+3)%frets, (x+5)%frets, (x+7)%frets, (x+8)%frets, (x+11)%frets];
