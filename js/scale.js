@@ -75,7 +75,7 @@ function getFullChord(y, x) {
     case "Spanish": return [(x+0)%frets, (x+1)%frets, (x+4)%frets, (x+5)%frets, (x+7)%frets, (x+8)%frets, (x+10)%frets];
     case "Harmonic Minor": return [(x+0)%frets, (x+2)%frets, (x+3)%frets, (x+5)%frets, (x+7)%frets, (x+8)%frets, (x+11)%frets];
     case "Melodic Minor": return [(x+0)%frets, (x+2)%frets, (x+3)%frets, (x+5)%frets, (x+7)%frets, (x+9)%frets, (x+11)%frets];
-    case "Blues": return [(x+0)%frets, (x+3)%frets, (x+5)%frets, (x+6)%frets, (x+7)%frets, (x+10)%frets];
+    case "Minor Blues": return [(x+0)%frets, (x+3)%frets, (x+5)%frets, (x+6)%frets, (x+7)%frets, (x+10)%frets];
     default: return "error";
   }
 }

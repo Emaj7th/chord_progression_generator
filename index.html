@@ -3,20 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scale and Chord Progressions</title>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <title>Mode and Chord Progressions</title>
+
   <script src="js/pianissimo.bundle.min.js"></script><!-- music theory -->
   <script src="js/chord.js"></script><!-- Guitar Chord Diagrams -->
   <script src="js/chord-collection.js"></script><!-- Data for Guitar Chord Diagrams -->
   <script type="text/javascript" src="js/scale.js"></script><!-- Guitar Neck -->
   <script src="https://cdn.jsdelivr.net/npm/tone@15.0.4/build/Tone.min.js"></script><!-- Keyboard Looper -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <!-- python -m http.server 8000 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" ></script>
   <link rel="stylesheet" href="style.css">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 </head>
   <body>
 <div class="rectangle">
@@ -26,7 +29,7 @@
      <li>KEY
      <select id="key" class="form-select mb-3"></select></li>
 
-     <li>SCALE
+     <li>MODE
      <select id="scale" class="form-select mb-3"></select></li>
 
      <li>CHORD SET 
@@ -41,32 +44,42 @@
       <button id="generate" type="button" class="btn btn-custom w-100 position-absolute bottom-0">GENERATE</button></li>
      <li>&nbsp;
       <button id="random" type="button" class="btn btn-custom w-100 position-absolute bottom-0">RANDOM</button></li>
+      <li>&nbsp;
+        <button id="helpbtn" type="button" class="btn btn-help w-100 position-absolute bottom-0" data-bs-toggle="collapse" data-bs-target="#helpinfo" aria-expanded="false" aria-controls="helpinfo">HELP</button></li>
    </ul>
    </div>
- 
-
   <div class="main-container">
-    <!-- Top Section -->
-    <div class="top-section">
-      <!-- Form Section -->
-      <div class="title-container"><h1 class="text-center fw-bold">Scale and Chord Progressions</h1>
-        <br />
-        <p style="text-align:justify;">Select a Scale before a Progression to properly filter the Progressions options.<br /><br />
-          Select a Keyboard Rhythm before playing the Progression Looper.<br /><br />
-          Please note that the scale notes will will display double sharps and double flats, etc., 
-          but these notes will be converted to note name you would normally use for the given note position.  
-        For example, if a scale has "C##" when it is used to generate the chord, you will see "D."</p>
-        <br />
-        
+      <div class="collapse" id="helpinfo">
+        <div id="randomOptions">
+          <h1 class="text-center fw-bold">Random Settings</h1>
+            The following selects which settings are randomized when the random button is clicked. 
+            <div><input class="form-check-input" type="checkbox" value="" id="randomKey" checked>
+              <label class="form-check-label" for="randomKey">KEY</label></div>
+            <div><input class="form-check-input" type="checkbox" value="" id="randomScale" checked>
+              <label class="form-check-label" for="randomScale">SCALE</label></div>
+            <div><input class="form-check-input" type="checkbox" value="" id="randomChordSet" checked>
+              <label class="form-check-label" for="randomChordSet">CHORD SET</label></div>
+            <div><input class="form-check-input" type="checkbox" value="" id="randomProgression" checked>
+              <label class="form-check-label" for="randomProgression">PROGRESSION</label></div>
+              <br />           
+          </div>
+        <div class="help-container">
+            <h1 class="text-center fw-bold">Mode and Chord Progressions</h1>
+            <ul style="text-align:justify;">
+              <li>Select a Mode before a Progression to properly filter the Progressions options.</li>
+              <li>Select a Keyboard Rhythm before playing the Progression Looper.</li>
+              <li>Please note that the mode notes will will display double sharps and double flats, etc., 
+              but these notes will be converted to note name you would normally use for the given note position.  
+              For example, if a mode has "C##" when it is used to generate the chord, you will see "D."</li>
+            </ul>
+            
+        </div><br clear="all" />
       </div>
-          <!-- Results Section -->
+    <div id="looper"><div class="progression-looper-container"></div></div>
+    <!-- Results Section -->
     <div class="results-container">
-      <div id="result">
-        
-
-      </div>
+      <div id="result"></div>
       <div id="chord-chart" class="chord-chart"></div>
-
       <div id="keyboards" class="piano-hidden">
         <div class="keyboard"><div class="piano-chord-name" id="chord0">chord 1: </div> 
           <div id="piano-keyboard0">
@@ -181,10 +194,10 @@
           </div>
         </div>                       
     </div>
-
+    
+    </div><br clear="all" />
     </div>
-    </div>
-  </div>
+ 
  
     <div class="shift">
     <div class="guitar">

@@ -6,10 +6,6 @@ body {
   }
   .main-container {
     background-color: #2b465f;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
     padding: 0 5px 5px 5px;
     width: 1268px;
     margin: 0 auto 20px auto;
@@ -17,36 +13,37 @@ body {
     border-radius: 0.5rem;
     box-shadow: 0px 4px 6px #333;
   }
-  .top-section {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    width: 1200px;
-    text-align: center;
-  }
-  .form-container {
-    display: inline-block;
-    vertical-align: top;
-    text-align: left;
-    width: 300px;
-    color: white;
-    font-weight: lighter;
-    padding: 1rem;
+  .help-container {
+    margin: 10px;
+    float: left;
+    display: inline;
+    width: 870px;
+    background-color: #cfd6da; 
+    color: black;
     border-radius: 0.5rem;
-    
+    padding: 1rem;
+    border: 2px solid #222;
+    text-align: left;
+    font-size: 1.2em;
+    box-shadow: 0px 4px 6px #333;
   }
-  .title-container {
-    display: inline-block;
-    vertical-align: top;
-    width: 320px;
-    color: #ffffff;
-    font-size: .9rem;
-    padding:10px; 
-  }
+  #randomOptions{
+    float: right; 
+    display: inline;
+    width: 340px;
+    margin: 10px;
+    background-color: #cfd6da; 
+    color: black;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 2px solid #222;
+    text-align: left;
+    box-shadow: 0px 4px 6px #333;
+  }  
   h1{
-    font-family: "Bungee Shade", serif;
+ 
     font-weight: 400;
-    font-size: 30px;
+    font-size: 28px;
     font-style: normal;
   }
   h2{
@@ -55,10 +52,11 @@ body {
     font-style: normal;
   }     
   .results-container {
-    width: 900px;
-    display: inline-block;
+    width: 874px;
+    display: inline;
+    float: left;
     margin: 10px;
-    background-color: #ddd; /* Light gray for results */
+    background-color: #ddd; 
     color: black;
     border-radius: 0.5rem;
     padding: 1rem;
@@ -77,12 +75,23 @@ body {
     background-color: #ffdeac;
     color: #2b465f;
   }
+  .btn-help {
+    background-color: #353535;
+    border-color: #202020;
+    color: #bdbdbd;
+    font-weight: bold; 
+    margin-bottom: 8px;
+  }
+  .btn-help:hover {
+    background-color: #ffdeac;
+    color: #2b465f;
+  }
   .chord-chart {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 2px;
-    margin-top: 20px;
+    margin: 20px 0 10px 0;
   }
   .chord-chart canvas {
     background: #4a5f74;
@@ -110,9 +119,76 @@ body {
       float: left;
        vertical-align: bottom; 
       margin-right: 6px;
-      width: 180px; height: 70px;
+      width: 175px; height: 70px;
       list-style: none;
-  } 
+  }
+/* LOOPER */
+.scale-info{
+  font-size: 1.3rem;
+  font-weight: 400;
+
+}
+#looper{
+  float: right; 
+  display: inline;
+  width: 360px;
+}
+.progression-looper {
+  margin: 10px;
+  background-color: #ddd; 
+  color: black;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 2px solid #222;
+  text-align: left;
+  box-shadow: 0px 4px 6px #333;
+}
+
+.progression-looper h3 {
+  margin: 0 0 10px 0;
+}
+
+.transport-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.transport-controls button {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.volume-slider {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.rhythm-select {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.swing-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+.swing-select, .subdivision-select {
+  width: 70px;
+}  
+.drum-controls {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.drum-select {
+  width: 100%;
+  margin: 5px 0;
+}
  /* FONTS */
   
   .kanit-regular {
@@ -158,6 +234,8 @@ body {
 
 .shift {
     margin-left: 50px;
+    display: flex;
+    flex-direction: column;
 }
 
 .guitar {
@@ -529,43 +607,3 @@ body {
   transform: translateX(-50%);
 }
 
-/* LOOPER */
-.scale-info{
-    float: left;
-    width: 410px;
-    font-size: 1.2rem;
-}
-.progression-looper {
-    background-color: #b2c6d8;
-    padding: 15px;
-    border-radius: 0.5rem;
-    border: 2px solid #ffffff;
-    box-shadow: 0px 2px 3px #888;
-    float: right;
-    width: 380px;
-  }
-  
-  .progression-looper h3 {
-    margin: 0 0 10px 0;
-  }
-  
-  .transport-controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .transport-controls button {
-    padding: 5px 10px;
-    cursor: pointer;
-  }
-  
-  .volume-slider {
-    width: 100%;
-    margin: 10px 0;
-  }
-  
-  .rhythm-select {
-    width: 100%;
-    margin-top: 10px;
-  }

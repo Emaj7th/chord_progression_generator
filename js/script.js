@@ -14,7 +14,7 @@ const noteSimplification = {
   "Dbb": "C", "B##": "C#", "Ebb": "D", "C##": "D",
   "Fbb": "Eb", "D##": "E", "Gbb": "F", "E##": "F#",
   "F##": "G#", "Abb": "G", "G##": "A", "Bbb": "A",
-  "Cbb": "Bb", "A##": "B", "B#": "C", "E#": "F"
+  "Cbb": "Bb", "A##": "B", "B#": "C", "E#": "F","Cb": "B"
 };
 
 // Piano chord scheme
@@ -43,6 +43,7 @@ const keyDropdown = document.getElementById('key');
 const scaleDropdown = document.getElementById('scale');
 const progressionDropdown = document.getElementById('progression');
 const resultContainer = document.getElementById('result');
+const looperContainer = document.getElementById('looper');
 const chordChartContainer = document.getElementById('chord-chart');
 const pianoChord0 = document.getElementById('chord0');
 const pianoChord1 = document.getElementById('chord1');
@@ -249,50 +250,76 @@ function renderChanges({ rootNote, chordType, keyboardDiv }) {
   }
 }
 
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}
+
 // Add Tone.js initialization and control
+const reverb = new Tone.Reverb({
+  decay: 3,     // Reverb tail length in seconds
+  preDelay: 0.02, // Slight delay before reverb starts
+  wet: 0.5        // Mix between dry (0) and wet (1) signal
+}).toDestination();
+
+ 
 const sampler = new Tone.Sampler({
   urls: {
-    A0: "A0.mp3",
-    C1: "C1.mp3",
-    "D#1": "Ds1.mp3",
-    "F#1": "Fs1.mp3",
-    A1: "A1.mp3",
     C2: "C2.mp3",
-    "D#2": "Ds2.mp3",
-    "F#2": "Fs2.mp3",
+    "D#2": "Eb2.mp3",
+    "F#2": "Gb2.mp3",
     A2: "A2.mp3",
     C3: "C3.mp3",
-    "D#3": "Ds3.mp3",
-    "F#3": "Fs3.mp3",
+    "C#3": "Db3.mp3",
+    D3: "D3.mp3",
+    "D#3": "Eb3.mp3",
+    E3: "E3.mp3",
+    F3: "F3.mp3",
+    "F#3": "Gb3.mp3",
+    G3: "G3.mp3",
+    "G#3": "Ab3.mp3",
     A3: "A3.mp3",
+    B3: "B3.mp3",
     C4: "C4.mp3",
-    "D#4": "Ds4.mp3",
-    "F#4": "Fs4.mp3",
+    "D#4": "Eb4.mp3",
+    "F#4": "Gb4.mp3",
     A4: "A4.mp3",
     C5: "C5.mp3",
-    "D#5": "Ds5.mp3",
-    "F#5": "Fs5.mp3",
+    "D#5": "Eb5.mp3",
+    "F#5": "Gb5.mp3",
     A5: "A5.mp3",
+    B5: "B5.mp3",
     C6: "C6.mp3",
-    "D#6": "Ds6.mp3",
-    "F#6": "Fs6.mp3",
+    D6: "D6.mp3",
+    "C#6": "Db6.mp3",
+    "D#6": "Eb6.mp3",
+    "F#6": "Gb6.mp3",
     A6: "A6.mp3",
     C7: "C7.mp3",
-    "D#7": "Ds7.mp3",
-    "F#7": "Fs7.mp3",
-    A7: "A7.mp3",
-    C8: "C8.mp3",
+    "D#7": "Eb7.mp3",
+    "F#7": "Gb7.mp3",
+    "A#7": "Bb7.mp3",
   },
   release: 1,
-  baseUrl: "https://tonejs.github.io/audio/salamander/",
-}).toDestination();
+  baseUrl: "samples/piano/",
+}).connect(reverb);  // Connect to reverb instead of toDestination()
 
 // Progression Looper class
 class ProgressionLooper {
   constructor() {
     this.isPlaying = false;
     this.currentBPM = 120;
-    this.currentVolume = -12;
+    this.currentVolume = -5;
     this.leftOctave = 3;
     this.rightOctave = 5;
     this.currentChords = [];
@@ -335,9 +362,9 @@ class ProgressionLooper {
     
     // BPM control
     const bpmSelect = document.createElement('select');
-    for (let bpm = 60; bpm <= 200; bpm += 10) {
+    for (let bpm = 30; bpm <= 140; bpm += 10) {
       const option = document.createElement('option');
-      option.value = bpm;
+      option.value = bpm/2;
       option.textContent = `${bpm} BPM`;
       if (bpm === 120) option.selected = true;
       bpmSelect.appendChild(option);
@@ -361,6 +388,62 @@ class ProgressionLooper {
       sampler.volume.value = this.currentVolume;
     };
 
+    // Reverb control
+    const reverbSlider = document.createElement('input');
+    reverbSlider.type = 'range';
+    reverbSlider.min = 0;
+    reverbSlider.max = 100;
+    reverbSlider.value = 20;  // Default 20% wet signal
+    reverbSlider.className = 'reverb-slider';
+    reverbSlider.oninput = (e) => {
+        const wetness = parseInt(e.target.value) / 100;
+        reverb.wet.value = wetness;
+    };
+
+    // Add label for reverb
+    const reverbLabel = document.createElement('div');
+    reverbLabel.textContent = 'Reverb';
+    reverbLabel.className = 'control-label';
+    
+    // Create container for swing controls
+    const swingControls = document.createElement('div');
+    swingControls.className = 'swing-controls';
+    
+    // Swing Amount dropdown
+    const swingSelect = document.createElement('select');
+    swingSelect.className = 'swing-select';
+    [0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6].forEach(amount => {
+        const option = document.createElement('option');
+        option.value = amount;
+        option.textContent = `${amount * 100}%`;
+        if (amount === 0.25) option.selected = true;  // Default value
+        swingSelect.appendChild(option);
+    });
+    swingSelect.onchange = (e) => {
+        Tone.Transport.swing = parseFloat(e.target.value);
+        console.log('swingSelect:', e.target.value);
+    };
+
+    // Swing Subdivision dropdown
+    const subdivisionSelect = document.createElement('select');
+    subdivisionSelect.className = 'subdivision-select';
+    ['4n', '8n', '16n'].forEach(subdivision => {
+        const option = document.createElement('option');
+        option.value = subdivision;
+        option.textContent = subdivision;
+        if (subdivision === '16n') option.selected = true;  // Default value
+        subdivisionSelect.appendChild(option);
+    });
+    subdivisionSelect.onchange = (e) => {
+        Tone.Transport.swingSubdivision = e.target.value;
+    };    
+
+    // Add labels and combine controls for Swing and Sub Divisions
+    const swingLabel = document.createElement('span');
+    swingLabel.textContent = 'Swing: ';
+    const subdivisionLabel = document.createElement('span');
+    subdivisionLabel.textContent = ' Sub: ';
+
     const rhythmTitle = document.createElement('div');
     rhythmTitle.textContent = 'Keyboard Rhythms';
 
@@ -378,11 +461,19 @@ class ProgressionLooper {
     controls.appendChild(stopButton);
     controls.appendChild(bpmSelect);
     controls.appendChild(volumeSlider);
+
+    swingControls.appendChild(swingLabel);
+    swingControls.appendChild(swingSelect);
+    swingControls.appendChild(subdivisionLabel);
+    swingControls.appendChild(subdivisionSelect);  
     
     container.appendChild(title);
     container.appendChild(controls);
     container.appendChild(rhythmTitle);
     container.appendChild(rhythmSelect);
+    container.appendChild(swingControls);
+    container.appendChild(reverbLabel);
+    container.appendChild(reverbSlider);
 
     return container;
   }
@@ -432,13 +523,15 @@ class ProgressionLooper {
     
     this.isPlaying = true;
     Tone.Transport.bpm.value = this.currentBPM;
+    Tone.Transport.swing = parseFloat(document.querySelector('.swing-select').value);
+    Tone.Transport.swingSubdivision = document.querySelector('.subdivision-select').value;
 
     // Create left and right hand patterns
     const leftHandPattern = [
       this.currentRhythm.left1.split(','),
       this.currentRhythm.left2.split(','),
       this.currentRhythm.left3.split(','),
-      this.currentRhythm.left4.split(',')
+      this.currentRhythm.left4.split(',') 
     ];
     console.log('Left hand pattern:', leftHandPattern);
     const rightHandPattern = [
@@ -460,6 +553,20 @@ class ProgressionLooper {
       const chordIndex = Math.floor(currentBeat / 4);
       const beatInChord = currentBeat % 4;
       
+      // Clear previous highlight
+      for (let i = 0; i < 4; i++) {
+        const container = document.getElementById(`chord-container-${i}`);
+        if (container) {
+          container.style.backgroundColor = '';
+        }
+      }
+  
+      // Highlight current chord
+      const currentContainer = document.getElementById(`chord-container-${chordIndex}`);
+      if (currentContainer) {
+          currentContainer.style.backgroundColor = '#FFA500';  // Orange highlight
+      }
+
       // Process left hand
       const leftBeat = leftHandPattern[chordIndex][beatInChord];
       if (leftBeat.startsWith('1')) {
@@ -489,9 +596,9 @@ class ProgressionLooper {
       }
 
       currentBeat = (currentBeat + 1) % totalBeats;
-    }, "4n").start(0);
+    }, "16n").start(0);
 
-    Tone.Transport.start();
+    Tone.Transport.start('+1');
   }
 
   stopLoop() {
@@ -501,6 +608,13 @@ class ProgressionLooper {
       this.loop.dispose();
     }
     Tone.Transport.stop();
+    // Clear any remaining highlights
+    for (let i = 0; i < 4; i++) {
+      const container = document.getElementById(`chord-container-${i}`);
+      if (container) {
+          container.style.backgroundColor = '';
+      }
+    }
   }
 
   restartLoop() {
@@ -535,26 +649,43 @@ scaleDropdown.addEventListener('change', () => {
 });
 
 document.getElementById('random').addEventListener('click', () => {
-  // First update the key and scale
-  const randomKey = musicalKeys[Math.floor(Math.random() * musicalKeys.length)];
-  keyDropdown.value = randomKey;
+  // Check which settings should be randomized
+  const randomizeKey = document.getElementById('randomKey').checked;
+  const randomizeScale = document.getElementById('randomScale').checked;
+  const randomizeChordSet = document.getElementById('randomChordSet').checked;
+  const randomizeProgression = document.getElementById('randomProgression').checked;
 
-  const scales = Array.from(scaleDropdown.options).map(option => option.value);
-  const randomScaleIndex = Math.floor(Math.random() * scales.length);
-  scaleDropdown.value = scales[randomScaleIndex];
+  // Only randomize key if checkbox is checked
+  if (randomizeKey) {
+    const randomKey = musicalKeys[Math.floor(Math.random() * musicalKeys.length)];
+    keyDropdown.value = randomKey;
+  }
+
+  // Only randomize scale if checkbox is checked
+  if (randomizeScale) {
+    const scales = Array.from(scaleDropdown.options).map(option => option.value);
+    const randomScaleIndex = Math.floor(Math.random() * scales.length);
+    scaleDropdown.value = scales[randomScaleIndex];
+  }
 
   // Trigger scale change to update progressions
   scaleDropdown.dispatchEvent(new Event('change'));
-  // Display Piano diagrams:
+  
+  // Display Piano diagrams
   showPianoChords();
-  // Use Promise to ensure scale change is complete
-  Promise.resolve().then(() => {
-    // Then update progression and chord set
-    const progressions = Array.from(progressionDropdown.options).map(option => option.value);
-    progressionDropdown.value = progressions[Math.floor(Math.random() * progressions.length)];
 
-    const chordSets = Array.from(document.getElementById('chord-set').options).map(option => option.value);
-    document.getElementById('chord-set').value = chordSets[Math.floor(Math.random() * chordSets.length)];
+  Promise.resolve().then(() => {
+    // Only randomize progression if checkbox is checked
+    if (randomizeProgression) {
+      const progressions = Array.from(progressionDropdown.options).map(option => option.value);
+      progressionDropdown.value = progressions[Math.floor(Math.random() * progressions.length)];
+    }
+
+    // Only randomize chord set if checkbox is checked
+    if (randomizeChordSet) {
+      const chordSets = Array.from(document.getElementById('chord-set').options).map(option => option.value);
+      document.getElementById('chord-set').value = chordSets[Math.floor(Math.random() * chordSets.length)];
+    }
 
     // Finally trigger generate to update display
     document.getElementById('generate').click();
@@ -581,8 +712,6 @@ document.getElementById('generate').addEventListener('click', () => {
   const scaleNotes = getScaleNotes(selectedKey, selectedScale);
   const chordTypes = Array(7).fill('').map((_, i) => scaleData[i + 1] || '');
 
-  
-
   const chords = selectedProgression.map(step => {
     const note = scaleNotes[step - 1];
     const chordType = chordTypes[step - 1];
@@ -598,25 +727,31 @@ document.getElementById('generate').addEventListener('click', () => {
   resultContainer.innerHTML = `
     <div class="scale-info"><h2><strong>${selectedKey} ${selectedScale}</strong></h2>
     <div><strong>Scale Notes:</strong> ${scaleNotes.join(', ')}</div>
+    <div><strong>Scale Chords:</strong> ${scaleNotes.map((note, index) => {
+        const chordType = chordTypes[index];
+        return chordType === 'maj' ? note : `${note}${chordType}`;
+    }).join(' | ')}</div>
     <div><strong>Set:</strong> ${chordSet}</div>
     <div><strong>Progression:</strong> ${chords.map(chord => chord.name).join(' | ')}</div></div>
-    <div class="progression-looper-container"></div><br clear="ALL" />
   `;
 
   // Set the chords before creating controls
   progressionLooper.setChords(chords);
 
   // Append the controls to the container instead of using innerHTML
-  const looperContainer = resultContainer.querySelector('.progression-looper-container');
-  looperContainer.appendChild(progressionLooper.createControls());
+  const lContainer = looperContainer.querySelector('.progression-looper-container');
+  lContainer.innerHTML = "";
+  lContainer.appendChild(progressionLooper.createControls());
 
   // Render chord diagrams
   chordChartContainer.innerHTML = '';
   chords.forEach((chord, index) => {
     const container = document.createElement('div');
-    container.style.margin = '4px';
+    container.id = `chord-container-${index}`;
+    container.style.padding = '4px';  // Changed from margin to padding
+    container.style.transition = 'background-color 0.3s';  // Smooth transition for highlight
     chordChartContainer.appendChild(container);
-    renderChord(container, chord.name);
+    renderChord(container, chord.name);;
  
     // Handle piano chord display
     if (index === 0) {
