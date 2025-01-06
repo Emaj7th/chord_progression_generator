@@ -17,7 +17,7 @@ body {
     margin: 10px;
     float: left;
     display: inline;
-    width: 870px;
+    width: 874px;
     background-color: #cfd6da; 
     color: black;
     border-radius: 0.5rem;
@@ -180,8 +180,7 @@ body {
   width: 70px;
 }  
 .drum-controls {
-  margin-top: 10px;
-  padding-top: 10px;
+
   border-top: 1px solid #ddd;
 }
 

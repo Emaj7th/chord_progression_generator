@@ -3,6 +3,8 @@ const scalesChordsURL = 'data/scales_chords.csv';
 const chordProgressionsURL = 'data/chord_progressions.csv';
 const keyboardRhythmsURL = 'data/keyboard_rhythms.csv';
 let keyboardRhythmsData = [];
+const drumPatternsURL = 'data/drum_patterns.json';
+let drumPatternsData = [];
 
 // Musical constants
 const musicalKeys = [
@@ -65,19 +67,22 @@ musicalKeys.forEach((key) => {
 // Data Loading Functions
 async function loadAllData() {
   try {
-    const [scalesData, progressionsData, rhythmsData] = await Promise.all([
+    const [scalesData, progressionsData, rhythmsData, drumsData] = await Promise.all([
       fetch(scalesChordsURL).then(response => response.text()),
       fetch(chordProgressionsURL).then(response => response.text()),
-      fetch(keyboardRhythmsURL).then(response => response.text())
+      fetch(keyboardRhythmsURL).then(response => response.text()),
+      fetch(drumPatternsURL).then(response => response.json())
     ]);
 
     scalesChordsData = parseCSVData(scalesData);
     chordProgressionsData = parseCSVData(progressionsData);
     keyboardRhythmsData = parseCSVData(rhythmsData);
+    drumPatternsData = drumsData.drumPatterns;
 
     initializeScaleDropdown();
     initializeProgressionDropdown();
     initializeRhythmDropdown();
+    initializeDrumPatternDropdown();
   } catch (error) {
     console.error('Error loading data:', error);
   }
@@ -149,6 +154,29 @@ function initializeRhythmDropdown() {
   });
 
   return rhythmSelect;
+}
+
+// Add new function for drum pattern dropdown
+function initializeDrumPatternDropdown() {
+    const drumSelect = document.createElement('select');
+    drumSelect.id = 'drum-select';
+    drumSelect.className = 'drum-select';
+
+    // Add "None" option
+    const noneOption = document.createElement('option');
+    noneOption.value = '';
+    noneOption.textContent = 'No Drums';
+    drumSelect.appendChild(noneOption);
+    
+    // Add patterns
+    drumPatternsData.forEach(pattern => {
+        const option = document.createElement('option');
+        option.value = pattern.patternName;
+        option.textContent = pattern.patternName;
+        drumSelect.appendChild(option);
+    });
+
+    return drumSelect;
 }
 
 // Scale Generation Function
@@ -275,56 +303,78 @@ const reverb = new Tone.Reverb({
  
 const sampler = new Tone.Sampler({
   urls: {
+    A0: "A0.mp3",
+    C1: "C1.mp3",
+    "D#1": "Ds1.mp3",
+    "F#1": "Fs1.mp3",
+    A1: "A1.mp3",
     C2: "C2.mp3",
-    "D#2": "Eb2.mp3",
-    "F#2": "Gb2.mp3",
+    "D#2": "Ds2.mp3",
+    "F#2": "Fs2.mp3",
     A2: "A2.mp3",
     C3: "C3.mp3",
-    "C#3": "Db3.mp3",
-    D3: "D3.mp3",
-    "D#3": "Eb3.mp3",
-    E3: "E3.mp3",
-    F3: "F3.mp3",
-    "F#3": "Gb3.mp3",
-    G3: "G3.mp3",
-    "G#3": "Ab3.mp3",
+    "D#3": "Ds3.mp3",
+    "F#3": "Fs3.mp3",
     A3: "A3.mp3",
-    B3: "B3.mp3",
     C4: "C4.mp3",
-    "D#4": "Eb4.mp3",
-    "F#4": "Gb4.mp3",
+    "D#4": "Ds4.mp3",
+    "F#4": "Fs4.mp3",
     A4: "A4.mp3",
     C5: "C5.mp3",
-    "D#5": "Eb5.mp3",
-    "F#5": "Gb5.mp3",
+    "D#5": "Ds5.mp3",
+    "F#5": "Fs5.mp3",
     A5: "A5.mp3",
-    B5: "B5.mp3",
     C6: "C6.mp3",
-    D6: "D6.mp3",
-    "C#6": "Db6.mp3",
-    "D#6": "Eb6.mp3",
-    "F#6": "Gb6.mp3",
+    "D#6": "Ds6.mp3",
+    "F#6": "Fs6.mp3",
     A6: "A6.mp3",
     C7: "C7.mp3",
-    "D#7": "Eb7.mp3",
-    "F#7": "Gb7.mp3",
-    "A#7": "Bb7.mp3",
+    "D#7": "Ds7.mp3",
+    "F#7": "Fs7.mp3",
+    A7: "A7.mp3",
+    C8: "C8.mp3",
   },
   release: 1,
-  baseUrl: "samples/piano/",
+  baseUrl: "https://tonejs.github.io/audio/salamander/",     //"samples/piano/",
 }).connect(reverb);  // Connect to reverb instead of toDestination()
+
+// Add after piano sampler setup
+const drumKit = new Tone.Sampler({
+    urls: {
+        'C1': 'kick.mp3',
+        'D1': 'snare.mp3',
+        'E1': 'hatopen.mp3',
+        'F1': 'hatclosed.mp3',
+        'G1': 'ride.mp3',
+        'A1': 'stick.mp3'
+    },
+    baseUrl: 'samples/drum/',
+    release: 1,
+}).toDestination();
+
+// Drum note mapping
+const drumNoteMap = {
+    'kick': 'C1',
+    'snare': 'D1',
+    'hatopen': 'E1',
+    'hatclosed': 'F1',
+    'ride': 'G1',
+    'stick': 'A1'
+};
 
 // Progression Looper class
 class ProgressionLooper {
   constructor() {
     this.isPlaying = false;
-    this.currentBPM = 120;
+    this.currentBPM = 50;
     this.currentVolume = -5;
-    this.leftOctave = 3;
-    this.rightOctave = 5;
+    this.leftOctave = 3;    //defines where the left hand's chords start
+    this.rightOctave = 5;   //defines where the right hand's chords start
     this.currentChords = [];
     this.currentRhythm = null;
     this.loop = null;
+    this.currentDrumPattern = null;
+    this.drumVolume = -12;
   }
 
   createControls() {
@@ -366,7 +416,7 @@ class ProgressionLooper {
       const option = document.createElement('option');
       option.value = bpm/2;
       option.textContent = `${bpm} BPM`;
-      if (bpm === 120) option.selected = true;
+      if (bpm === 100) option.selected = true;
       bpmSelect.appendChild(option);
     }
     bpmSelect.onchange = (e) => {
@@ -393,7 +443,7 @@ class ProgressionLooper {
     reverbSlider.type = 'range';
     reverbSlider.min = 0;
     reverbSlider.max = 100;
-    reverbSlider.value = 20;  // Default 20% wet signal
+    reverbSlider.value = 25;  // Default 25% wet signal
     reverbSlider.className = 'reverb-slider';
     reverbSlider.oninput = (e) => {
         const wetness = parseInt(e.target.value) / 100;
@@ -416,7 +466,7 @@ class ProgressionLooper {
         const option = document.createElement('option');
         option.value = amount;
         option.textContent = `${amount * 100}%`;
-        if (amount === 0.25) option.selected = true;  // Default value
+        if (amount === 0.0) option.selected = true;  // Default value OFF
         swingSelect.appendChild(option);
     });
     swingSelect.onchange = (e) => {
@@ -443,9 +493,8 @@ class ProgressionLooper {
     swingLabel.textContent = 'Swing: ';
     const subdivisionLabel = document.createElement('span');
     subdivisionLabel.textContent = ' Sub: ';
-
     const rhythmTitle = document.createElement('div');
-    rhythmTitle.textContent = 'Keyboard Rhythms';
+    rhythmTitle.textContent = 'Piano:';
 
     // Rhythm selector
     const rhythmSelect = initializeRhythmDropdown();
@@ -456,21 +505,50 @@ class ProgressionLooper {
       }
     };
 
+    // Add drum pattern selector and volume
+    const drumControls = document.createElement('div');
+    drumControls.className = 'drum-controls';
+    
+    const drumLabel = document.createElement('div');
+    drumLabel.textContent = 'Drums:';
+    
+    const drumSelect = initializeDrumPatternDropdown();
+    drumSelect.onchange = (e) => {
+        this.currentDrumPattern = drumPatternsData.find(p => p.patternName === e.target.value);
+    };
+
+    const drumVolumeSlider = document.createElement('input');
+    drumVolumeSlider.type = 'range';
+    drumVolumeSlider.min = -60;
+    drumVolumeSlider.max = 0;
+    drumVolumeSlider.value = this.drumVolume;
+    drumVolumeSlider.className = 'volume-slider';
+    drumVolumeSlider.oninput = (e) => {
+        this.drumVolume = parseInt(e.target.value);
+        drumKit.volume.value = this.drumVolume;
+    };
+
     // Assemble controls
     controls.appendChild(playButton);
     controls.appendChild(stopButton);
     controls.appendChild(bpmSelect);
-    controls.appendChild(volumeSlider);
+    
 
     swingControls.appendChild(swingLabel);
     swingControls.appendChild(swingSelect);
     swingControls.appendChild(subdivisionLabel);
     swingControls.appendChild(subdivisionSelect);  
     
+    drumControls.appendChild(drumLabel);
+    drumControls.appendChild(drumSelect);
+    drumControls.appendChild(drumVolumeSlider);
+    
     container.appendChild(title);
     container.appendChild(controls);
     container.appendChild(rhythmTitle);
     container.appendChild(rhythmSelect);
+    container.appendChild(volumeSlider);
+    container.appendChild(drumControls);
     container.appendChild(swingControls);
     container.appendChild(reverbLabel);
     container.appendChild(reverbSlider);
@@ -513,6 +591,29 @@ class ProgressionLooper {
     return noteValues[noteType] || '4n';
   }
 
+    processDrumPattern(time, currentBeat) {
+        if (!this.currentDrumPattern) return;
+
+        const measureIndex = Math.floor(currentBeat / 16);
+        const eighthNote = currentBeat % 16;
+
+        Object.entries(this.currentDrumPattern).forEach(([drum, pattern]) => {
+            if (drum === 'patternName') return;
+
+            const patterns = pattern.split(',');
+            const currentPattern = patterns[measureIndex];
+            
+            if (currentPattern[eighthNote] === '1') {
+                // Randomize velocity between 0.7 and 1.0
+                const velocity = 0.7 + Math.random() * 0.3;
+                const note = drumNoteMap[drum];
+                if (note) {
+                    drumKit.triggerAttackRelease(note, '16n', time, velocity);
+                }
+            }
+        });
+    }
+  
   startLoop() {
     console.log('StartLoop called', {
       hasRhythm: !!this.currentRhythm,
@@ -552,7 +653,12 @@ class ProgressionLooper {
       });
       const chordIndex = Math.floor(currentBeat / 4);
       const beatInChord = currentBeat % 4;
+      //const beatInChord = (currentBeat % 16) / 4;  // Convert sixteenth notes back to quarter notes
+      const eighthNoteIndex = currentBeat * 2;  // Convert quarter notes to eighth notes
       
+      // Process drum pattern
+      this.processDrumPattern(time, eighthNoteIndex);
+
       // Clear previous highlight
       for (let i = 0; i < 4; i++) {
         const container = document.getElementById(`chord-container-${i}`);

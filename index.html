@@ -45,12 +45,12 @@
      <li>&nbsp;
       <button id="random" type="button" class="btn btn-custom w-100 position-absolute bottom-0">RANDOM</button></li>
       <li>&nbsp;
-        <button id="helpbtn" type="button" class="btn btn-help w-100 position-absolute bottom-0" data-bs-toggle="collapse" data-bs-target="#helpinfo" aria-expanded="false" aria-controls="helpinfo">HELP</button></li>
+        <button id="helpbtn" type="button" class="btn btn-help w-100 position-absolute bottom-0" data-bs-toggle="collapse" data-bs-target="#helpinfo" aria-expanded="false" aria-controls="helpinfo">SETTINGS</button></li>
    </ul>
    </div>
   <div class="main-container">
       <div class="collapse" id="helpinfo">
-        <div id="randomOptions">
+        <div id="randomOptions" style="height:260px" >
           <h1 class="text-center fw-bold">Random Settings</h1>
             The following selects which settings are randomized when the random button is clicked. 
             <div><input class="form-check-input" type="checkbox" value="" id="randomKey" checked>
@@ -60,11 +60,10 @@
             <div><input class="form-check-input" type="checkbox" value="" id="randomChordSet" checked>
               <label class="form-check-label" for="randomChordSet">CHORD SET</label></div>
             <div><input class="form-check-input" type="checkbox" value="" id="randomProgression" checked>
-              <label class="form-check-label" for="randomProgression">PROGRESSION</label></div>
-              <br />           
+              <label class="form-check-label" for="randomProgression">PROGRESSION</label></div> 
           </div>
-        <div class="help-container">
-            <h1 class="text-center fw-bold">Mode and Chord Progressions</h1>
+        <div class="help-container" style="height:260px">
+            <div class="text-center fw-bold">Tips & Help</div>
             <ul style="text-align:justify;">
               <li>Select a Mode before a Progression to properly filter the Progressions options.</li>
               <li>Select a Keyboard Rhythm before playing the Progression Looper.</li>
@@ -72,8 +71,7 @@
               but these notes will be converted to note name you would normally use for the given note position.  
               For example, if a mode has "C##" when it is used to generate the chord, you will see "D."</li>
             </ul>
-            
-        </div><br clear="all" />
+        </div>
       </div>
     <div id="looper"><div class="progression-looper-container"></div></div>
     <!-- Results Section -->
