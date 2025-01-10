@@ -38,11 +38,11 @@ A music jamming and practicing tool where you can:
 
 Application currently playing a chord progression over a drum pattern with shuffle applied: 
 
-![App Screenshot](https://github.com/Emaj7th/chord_progression_generator/screenshots/screenshot_1.png)
+![App Screenshot](screenshots/screenshot_1.png)
 
 Same session, but now with the settings section displaying:
 
-![App Screenshot](https://github.com/Emaj7th/chord_progression_generator/screenshots/screenshot_2.png)
+![App Screenshot](screenshots/screenshot_2.png)
 
 
 ## Tech Stack
