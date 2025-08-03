@@ -1,7 +1,8 @@
 // Configuration Constants
 const scalesChordsURL = 'data/scales_chords.csv';
 const chordProgressionsURL = 'data/chord_progressions.csv';
-const bassPatternsURL = 'data/bass_patterns.csv';
+const bassPatternsURL = 'data/bass_patterns.json';
+let bassPatternsData = [];
 const keyboardRhythmsURL = 'data/keyboard_rhythms.csv';
 let keyboardRhythmsData = [];
 const drumPatternsURL = 'data/drum_patterns.json';
@@ -68,17 +69,19 @@ musicalKeys.forEach((key) => {
 // Data Loading Functions
 async function loadAllData() {
   try {
-    const [scalesData, progressionsData, rhythmsData, drumsData] = await Promise.all([
+    const [scalesData, progressionsData, rhythmsData, drumsData, bassData] = await Promise.all([
       fetch(scalesChordsURL).then(response => response.text()),
       fetch(chordProgressionsURL).then(response => response.text()),
       fetch(keyboardRhythmsURL).then(response => response.text()),
-      fetch(drumPatternsURL).then(response => response.json())
+      fetch(drumPatternsURL).then(response => response.json()),
+      fetch(bassPatternsURL).then(response => response.json())
     ]);
 
     scalesChordsData = parseCSVData(scalesData);
     chordProgressionsData = parseCSVData(progressionsData);
     keyboardRhythmsData = parseCSVData(rhythmsData);
     drumPatternsData = drumsData.drumPatterns;
+    bassPatternsData = bassData.bassPatterns;
 
     initializeScaleDropdown();
     initializeProgressionDropdown();
@@ -178,6 +181,29 @@ function initializeDrumPatternDropdown() {
     });
 
     return drumSelect;
+}
+
+// Add bass pattern dropdown function
+function initializeBassPatternDropdown() {
+    const bassSelect = document.createElement('select');
+    bassSelect.id = 'bass-select';
+    bassSelect.className = 'bass-select';
+
+    // Add "None" option
+    const noneOption = document.createElement('option');
+    noneOption.value = '';
+    noneOption.textContent = 'No Bass';
+    bassSelect.appendChild(noneOption);
+    
+    // Add patterns
+    bassPatternsData.forEach(pattern => {
+        const option = document.createElement('option');
+        option.value = pattern.patternName;
+        option.textContent = pattern.patternName;
+        bassSelect.appendChild(option);
+    });
+
+    return bassSelect;
 }
 
 // Scale Generation Function
@@ -363,6 +389,22 @@ const drumNoteMap = {
     'stick': 'A1'
 };
 
+// Add after drumKit setup
+const bassKit = new Tone.Sampler({
+    urls: {
+        'C1': 'C1.mp3', 
+        'Eb1': 'Eb1.mp3',
+        'Gb1': 'Gb1.mp3',
+        'A1': 'A1.mp3',
+        'C2': 'C2.mp3', 
+        'Eb2': 'Eb2.mp3',
+        'Gb2': 'Gb2.mp3',
+        'A2': 'A2.mp3',
+    },
+    baseUrl: 'samples/bass/',
+    release: 1,
+}).toDestination();
+
 // Progression Looper class
 class ProgressionLooper {
   constructor() {
@@ -376,6 +418,8 @@ class ProgressionLooper {
     this.loop = null;
     this.currentDrumPattern = null;
     this.drumVolume = -12;
+    this.currentBassPattern = null;
+    this.bassVolume = -8;
   }
 
   createControls() {
@@ -430,7 +474,7 @@ class ProgressionLooper {
     // Volume slider
     const volumeSlider = document.createElement('input');
     volumeSlider.type = 'range';
-    volumeSlider.min = -60;
+    volumeSlider.min = -20;
     volumeSlider.max = 0;
     volumeSlider.value = this.currentVolume;
     volumeSlider.className = 'volume-slider';
@@ -529,6 +573,33 @@ class ProgressionLooper {
         drumKit.volume.value = this.drumVolume;
     };
 
+    // Add bass controls
+    const bassControls = document.createElement('div');
+    bassControls.className = 'bass-controls';
+
+    const bassLabel = document.createElement('div');
+    bassLabel.textContent = 'Bass:';
+
+    const bassSelect = initializeBassPatternDropdown();
+    bassSelect.onchange = (e) => {
+        this.currentBassPattern = bassPatternsData.find(p => p.patternName === e.target.value);
+    };
+
+    const bassVolumeSlider = document.createElement('input');
+    bassVolumeSlider.type = 'range';
+    bassVolumeSlider.min = -60;
+    bassVolumeSlider.max = 0;
+    bassVolumeSlider.value = this.bassVolume;
+    bassVolumeSlider.className = 'volume-slider';
+    bassVolumeSlider.oninput = (e) => {
+        this.bassVolume = parseInt(e.target.value);
+        bassKit.volume.value = this.bassVolume;
+    };
+
+    bassControls.appendChild(bassLabel);
+    bassControls.appendChild(bassSelect);
+    bassControls.appendChild(bassVolumeSlider);
+
     // Assemble controls
     controls.appendChild(playButton);
     controls.appendChild(stopButton);
@@ -553,6 +624,7 @@ class ProgressionLooper {
     container.appendChild(swingControls);
     container.appendChild(reverbLabel);
     container.appendChild(reverbSlider);
+    container.appendChild(bassControls);
 
     return container;
   }
@@ -614,6 +686,54 @@ class ProgressionLooper {
             }
         });
     }
+
+    processBassPattern(time, currentBeat) {
+        if (!this.currentBassPattern) return;
+
+        const chordIndex = Math.floor(currentBeat / 4);
+        const beatInChord = currentBeat % 4;
+        
+        const bassPattern = this.currentBassPattern.measures[chordIndex].split(',');
+        const bassBeat = bassPattern[beatInChord];
+        
+        if (bassBeat !== '0' && bassBeat.match(/^[1-7]/)) {
+            const chordDegree = parseInt(bassBeat.charAt(0)) - 1; // 0-based index
+            const noteType = bassBeat.substring(1);
+            const duration = this.parseNoteValue(noteType);
+            
+            // Get chord notes instead of scale notes
+            const currentChord = this.currentChords[chordIndex];
+            const chordNotes = this.createChordNotes(currentChord, 1); // Use octave 1 as base
+            
+            if (chordNotes[chordDegree]) {
+                // Extract just the note name without octave
+                const baseNote = chordNotes[chordDegree].replace(/[0-9]/g, '');
+                
+                // Always use octave 1 for bass
+                let bassOctave = 1;
+                console.log('BassNote:', baseNote, 'Octave:', bassOctave);
+                // Map to available bass sample
+                const mappedBassNote = this.mapToBassNote(baseNote, bassOctave);
+                
+                bassKit.triggerAttackRelease(mappedBassNote, duration, time);
+            }
+        }
+    }
+
+  mapToBassNote(scaleDegreeNote, octave) {
+    // Available bass samples: D, E, G, A in octaves 1 and 2
+    const noteMap = {
+        'C': 'D', 'C#': 'D', 'Db': 'D',
+        'D': 'D', 'D#': 'E', 'Eb': 'E', 
+        'E': 'E', 'F': 'G', 'F#': 'G', 'Gb': 'G',
+        'G': 'G', 'G#': 'A', 'Ab': 'A',
+        'A': 'A', 'A#': 'D', 'Bb': 'A',
+        'B': 'D'
+    };
+    
+    const mappedNote = noteMap[scaleDegreeNote] || 'D';
+    return mappedNote + octave;
+  }
   
   startLoop() {
     console.log('StartLoop called', {
@@ -647,17 +767,15 @@ class ProgressionLooper {
     const totalBeats = 16; // 4 chords * 4 beats each
 
     this.loop = new Tone.Loop((time) => {
-      console.log('Loop iteration:', {
-        currentBeat,
-        chordIndex: Math.floor(currentBeat / 4),
-        beatInChord: currentBeat % 4
-      });
       const chordIndex = Math.floor(currentBeat / 4);
       const beatInChord = currentBeat % 4;
-      //const eighthNoteIndex = currentBeat * 2;  // Convert quarter notes to eighth notes?
       const sixteenthNoteIndex = currentBeat * 4; 
+      
       // Process drum pattern
       this.processDrumPattern(time, sixteenthNoteIndex);
+      
+      // Process bass pattern
+      this.processBassPattern(time, currentBeat);
 
       // Clear previous highlight
       for (let i = 0; i < 4; i++) {
@@ -670,7 +788,7 @@ class ProgressionLooper {
       // Highlight current chord
       const currentContainer = document.getElementById(`chord-container-${chordIndex}`);
       if (currentContainer) {
-          currentContainer.style.backgroundColor = '#FFA500';  // Orange highlight
+          currentContainer.style.backgroundColor = '#FFA500';
       }
 
       // Process left hand
@@ -679,11 +797,6 @@ class ProgressionLooper {
         const noteType = leftBeat.substring(1);
         const duration = this.parseNoteValue(noteType);
         const notes = this.createChordNotes(this.currentChords[chordIndex], this.leftOctave);
-        console.log('Playing left hand:', {
-          notes,
-          duration,
-          time
-        });
         sampler.triggerAttackRelease(notes, duration, time);
       }
 
@@ -693,11 +806,6 @@ class ProgressionLooper {
         const noteType = rightBeat.substring(1);
         const duration = this.parseNoteValue(noteType);
         const notes = this.createChordNotes(this.currentChords[chordIndex], this.rightOctave);
-        console.log('Playing right hand:', {
-          notes,
-          duration,
-          time
-        });
         sampler.triggerAttackRelease(notes, duration, time);
       }
 

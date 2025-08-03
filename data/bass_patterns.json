@@ -1,44 +1,48 @@
 {
     "bassPatterns": [
     {
-        "patternName": "Root Whole Notes",
+        "patternName": "Root Whole Notes All Four",
         "measures": ["1W,0,0,0", "1W,0,0,0", "1W,0,0,0", "1W,0,0,0"]
     },
     {
+        "patternName": "Root Whole Notes on 1, 3, and 4",
+        "measures": ["1W,0,0,0", "0,0,0,0", "1W,0,0,0", "1W,0,0,0"]
+    },
+    {
         "patternName": "Root Pulse Quarter",
-        "measures": ["1Q,1Q,1Q,1Q", "1Q,1Q,1Q,1Q", "1Q,1Q,1Q,1Q", "1Q,1Q,1Q,1Q"]
+        "measures": ["1Q,0,1Q,1Q", "1Q,0,1Q,1Q", "1Q,0,1Q,1Q", "1Q,0,1Q,1Q"]
     },
     {
         "patternName": "Root Half Bounce",
-        "measures": ["1H,0,1H,0", "1H,0,1H,0", "1H,0,1H,0", "1H,0,1H,0"]
+        "measures": ["1W,0,0,0", "1H,0,1Q,0", "1W,0,0,0", "1H,0,1Q,0"]
     },
     {
         "patternName": "Root and Fifth Split",
         "measures": ["1H,0,5H,0", "1H,0,5H,0", "1H,0,5H,0", "1H,0,5H,0"]
+    }, 
+    {
+        "patternName": "Fifth Down Groove",
+         "measures": ["1Q,5Q,0,0", "0,0,0,0", "1Q,5Q,0,0", "0,0,0,0"]
     },
     {
-        "patternName": "Root Fifth Quarter Dance",
-        "measures": ["1Q,5Q,1Q,5Q", "1Q,5Q,1Q,5Q", "1Q,5Q,1Q,5Q", "1Q,5Q,1Q,5Q"]
+        "patternName": "Root Fifth Root Quarter Dance",
+        "measures": ["1Q,5Q,0,0", "1Q,0,0,0", "1Q,0,0,0", "1Q,5Q,0,0"]
     },
     {
         "patternName": "Walking Up (scale degrees)",
-        "measures": ["1Q,2Q,3Q,4Q", "2Q,3Q,4Q,5Q", "3Q,4Q,5Q,6Q", "4Q,5Q,6Q,7Q"]
+        "measures": ["1Q,3Q,5Q,7Q", "1Q,5Q,3Q,4Q", "1Q,3Q,5Q,7Q", "1Q,3Q,4Q,5Q"]
     },
     {
-        "patternName": "Root Emphasis Walk",
-        "measures": ["1Q,2Q,3Q,5Q", "1Q,3Q,4Q,5Q", "1Q,5Q,4Q,3Q", "1Q,5Q,6Q,1Q"]
+        "patternName": "Minimal Whole",
+        "measures": ["1W,0,0,0", "0,0,0,0", "1W,0,0,0", "0,0,0,0"]
     },
     {
-        "patternName": "Fifth Down Groove",
-        "measures": ["5Q,1Q,5Q,1Q", "5Q,1Q,5Q,1Q", "5Q,1Q,5Q,1Q", "5Q,1Q,5Q,1Q"]
+        "patternName": "Minimal Quarter",
+        "measures": ["1Q,0,0,0", "0,0,0,0", "1Q,0,0,0", "0,0,0,0"]
     },
     {
-        "patternName": "Root Dotted Pulse",
-        "measures": ["1dQ,0,1Q,0", "1dQ,0,1Q,0", "1dQ,0,1Q,0", "1dQ,0,1Q,0"]
-    },
-    {
-        "patternName": "Root with Turnaround",
-        "measures": ["1H,0,5Q,5Q", "1H,0,5Q,5Q", "1H,0,5Q,5Q", "1H,0,6Q,7Q"]
+        "patternName": "Root Whole Notes - first chord only",
+        "measures": ["1W,0,0,0", "0,0,0,0", "0,0,0,0", "0,0,0,0"]
     }
     ]
 }
