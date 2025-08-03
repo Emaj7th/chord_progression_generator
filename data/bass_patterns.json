@@ -1,0 +1,44 @@
+{
+    "bassPatterns": [
+    {
+        "patternName": "Root Whole Notes",
+        "measures": ["1W,0,0,0", "1W,0,0,0", "1W,0,0,0", "1W,0,0,0"]
+    },
+    {
+        "patternName": "Root Pulse Quarter",
+        "measures": ["1Q,1Q,1Q,1Q", "1Q,1Q,1Q,1Q", "1Q,1Q,1Q,1Q", "1Q,1Q,1Q,1Q"]
+    },
+    {
+        "patternName": "Root Half Bounce",
+        "measures": ["1H,0,1H,0", "1H,0,1H,0", "1H,0,1H,0", "1H,0,1H,0"]
+    },
+    {
+        "patternName": "Root and Fifth Split",
+        "measures": ["1H,0,5H,0", "1H,0,5H,0", "1H,0,5H,0", "1H,0,5H,0"]
+    },
+    {
+        "patternName": "Root Fifth Quarter Dance",
+        "measures": ["1Q,5Q,1Q,5Q", "1Q,5Q,1Q,5Q", "1Q,5Q,1Q,5Q", "1Q,5Q,1Q,5Q"]
+    },
+    {
+        "patternName": "Walking Up (scale degrees)",
+        "measures": ["1Q,2Q,3Q,4Q", "2Q,3Q,4Q,5Q", "3Q,4Q,5Q,6Q", "4Q,5Q,6Q,7Q"]
+    },
+    {
+        "patternName": "Root Emphasis Walk",
+        "measures": ["1Q,2Q,3Q,5Q", "1Q,3Q,4Q,5Q", "1Q,5Q,4Q,3Q", "1Q,5Q,6Q,1Q"]
+    },
+    {
+        "patternName": "Fifth Down Groove",
+        "measures": ["5Q,1Q,5Q,1Q", "5Q,1Q,5Q,1Q", "5Q,1Q,5Q,1Q", "5Q,1Q,5Q,1Q"]
+    },
+    {
+        "patternName": "Root Dotted Pulse",
+        "measures": ["1dQ,0,1Q,0", "1dQ,0,1Q,0", "1dQ,0,1Q,0", "1dQ,0,1Q,0"]
+    },
+    {
+        "patternName": "Root with Turnaround",
+        "measures": ["1H,0,5Q,5Q", "1H,0,5Q,5Q", "1H,0,5Q,5Q", "1H,0,6Q,7Q"]
+    }
+    ]
+}
